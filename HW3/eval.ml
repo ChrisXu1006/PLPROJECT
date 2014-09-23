@@ -25,14 +25,19 @@ let make_configuration (c:com) : configuration =
     (* failwith "Not yet implemented" *)
 
 (* evaluate a aexp *)
-let rec evala (arithmetic:aexp) : int = 
-    match arithmetic with 
-    | Int arithmetic -> arithmetic
+let rec evala (a:aexp) : int = 
+    match a with 
+    | Int m -> m
+	| Var x -> Hashtbl.find sigma x
+    | Plus(a1, a2) -> (evala a1) + (evala a2)
+  	| Minus(a1, a2) -> (evala a1) - (evala a2)
+  	| Times(a1, a2) -> (evala a1) * (evala a2)
+  	| Input -> sp ">"; 1   
 
 (* evaluate a command *)
 let rec evalc (conf:configuration) : store = 
     match (snd conf) with 
-    | Assign (left, right) ->  Hashtbl.add sigma left (evala right); sigma  
+    | Assign (x, a) ->  Hashtbl.add sigma x (evala a); sigma  
      (*| _ failwith "Not yet implemented"*)
 
 
