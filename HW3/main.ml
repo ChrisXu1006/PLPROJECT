@@ -13,4 +13,6 @@ let () =
         !Lexer.lineno 
         (Lexing.lexeme_end lexbuf - !Lexer.linestart - 1);
       exit 1 in 
-  ignore (Eval.evalc (Eval.make_configuration c))
+  let sigma = Eval.evalc (Eval.make_configuration c) in
+  let hashstrint_print = Hashtbl.iter (fun key data -> Printf.printf "%s = %d;\n" key data) in
+  hashstrint_print sigma

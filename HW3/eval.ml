@@ -32,9 +32,7 @@ let rec evala (arithmetic:aexp) : int =
 (* evaluate a command *)
 let rec evalc (conf:configuration) : store = 
     match (snd conf) with 
-    | Assign (left, right) ->  Hashtbl.add sigma left (evala right);
-      print_int (Hashtbl.find sigma left);
-      sigma  
+    | Assign (left, right) ->  Hashtbl.add sigma left (evala right); sigma  
      (*| _ failwith "Not yet implemented"*)
 
 
