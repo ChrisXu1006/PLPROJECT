@@ -1,0 +1,5 @@
+while true do {
+  x := input;
+  print x;
+  if x = 0 then break else skip
+}
