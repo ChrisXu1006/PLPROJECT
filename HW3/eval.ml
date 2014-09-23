@@ -53,16 +53,16 @@ let rec evalb (boo:bexp) : bool =
 
 (* evaluate a command *)
 let rec evalc (conf:configuration) : store = 
-    match (snd conf) with 
-    | Skip -> sigma
+	match conf with 
+    | (sigma, Skip) -> sigma
 	(* | Break -> TODO
 	| Continue -> TODO *)
-	| Assign (x, a) ->  Hashtbl.add sigma x (evala a); sigma
-	| Seq (c1, c2) -> (evalc (sigma,c1)); (evalc (sigma,c2))
-	| If(b, c1, c2) -> if (evalb b) then (evalc (sigma,c1)) else (evalc (sigma, c2))
-	| While(b, c) -> if (evalb b) then (evalc (sigma,c); evalc (sigma, While(b, c))) else Skip
-	| Print a -> sp "%d\n" (evala a); sigma
-	| Test(i, b) -> if (evalb b) then Skip else (sp "TestFailed\n"; pprintInfo i; sigma)
+	| (sigma, Assign (x, a)) ->  Hashtbl.add sigma x (evala a); sigma
+	| (sigma, Seq (c1, c2)) -> (evalc (sigma,c1)); (evalc (sigma,c2))
+	| (sigma, If(b, c1, c2)) -> if (evalb b) then (evalc (sigma,c1)) else (evalc (sigma, c2))
+	| (sigma, While(b, c)) -> if (evalb b) then (evalc (sigma,c); evalc (sigma, While(b, c))) else Skip
+	| (sigma, Print a) -> sp "%d\n" (evala a); sigma
+	| (sigma, Test(i, b)) -> if (evalb b) then Skip else (sp "TestFailed\n"; pprintInfo i; sigma)
      (*| _ failwith "Not yet implemented"*)
 
 
