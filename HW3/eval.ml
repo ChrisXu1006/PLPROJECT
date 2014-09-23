@@ -32,7 +32,8 @@ let rec evala (a:aexp) : int =
     | Plus         (a1, a2) -> (evala a1) + (evala a2)
   	| Minus        (a1, a2) -> (evala a1) - (evala a2)
   	| Times        (a1, a2) -> (evala a1) * (evala a2)
-  	| Input                 -> sp ">"; 1   
+  	| Input                 -> print_endline ">";
+                               let i = read_int() in i
 
 (* evaluate a bexp *)
 let rec evalb (boo:bexp) : bool = 
