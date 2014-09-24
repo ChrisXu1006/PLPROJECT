@@ -67,7 +67,7 @@ let rec evalc (conf:configuration) : store =
                                     then (evalc (sigma, c);
                                     evalc (sigma, While(b, c)))
                                     else (evalc (sigma, Skip))
-    | (sigma, Print a      )    ->  sp "%d\n" (evala a); sigma
+    | (sigma, Print a      )    ->  Printf.printf "%d\n" (evala a); sigma
     | (sigma, Test  (i,  b))    ->  if (evalb b)
                                     then (evalc (sigma, Skip))
                                     else (Printf.printf "TestFailed\n";
