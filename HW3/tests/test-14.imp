@@ -1,0 +1,6 @@
+skip;
+x := 2;
+skip;
+skip;
+
+test x = 2
