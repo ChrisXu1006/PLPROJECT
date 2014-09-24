@@ -54,7 +54,10 @@ let rec evalb (boo:bexp) : bool =
 let rec evalc (conf:configuration) : store = 
     match conf with 
     | (sigma, Skip)             ->  sigma
-    | (sigma, Assign (x, a))    ->  Hashtbl.add sigma x (evala a); sigma
+    | (sigma, Assign (x, a))    ->  if (Hashtbl.mem sigma x) 
+									then Hashtbl.replace sigma x (evala a)
+									else Hashtbl.add sigma x (evala a); 
+									sigma
     | (sigma, Seq  (c1, c2))    ->  (evalc (sigma, c1));
                                     (evalc (sigma, c2))
     | (sigma, If(b, c1, c2))    ->  if (evalb b)
