@@ -1,0 +1,11 @@
+i := 3;
+j := 4;
+k := 1;
+while ( j >= 0 ) do {
+	k := k * i;
+	i := i + 1;
+	j := j - 1
+};
+print l;
+print k
+
