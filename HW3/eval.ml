@@ -12,9 +12,11 @@ exception UnboundVariable of var
 (* A type for stores *)
 type store =
     ( var, int ) Hashtbl.t;;
-    
+
+type klist = (com * com) list
+
 (* A type for configurations *)
-type configuration = store * com;;
+type configuration = store * com * com * klist;;
 type aconfiguration = store * aexp;;
 type bconfiguration = store * bexp;;
 
@@ -23,7 +25,7 @@ let ( sigma : store ) = Hashtbl.create 200;;
 
 (* create an initial configuration from a command *)
 let make_configuration (c:com) : configuration = 
-	( sigma , c );;
+	( sigma , c, Skip, [] );;
     (* failwith "Not yet implemented" *)
 
 (* evaluate an aexp *)
@@ -55,12 +57,19 @@ let rec evalb (bconf:bconfiguration) : bool =
 (* evaluate a command *)
 let rec evalc (cconf:configuration) : store = 
     match cconf with 
-    | (sigma, Skip)             ->  sigma
-    | (sigma, Assign (x, a))    ->  if (Hashtbl.mem sigma x) 
-									then Hashtbl.replace sigma x (evala (sigma, a))
-									else Hashtbl.add sigma x (evala (sigma, a)); 
-									sigma
-    | (sigma, Seq  (c1, c2))    ->  (evalc (sigma, c1));
+    | (sigma, Skip, Skip, l)             ->  sigma
+	(* | (sigma, Skip, Assign (x, a), l)    ->  evalc (sigma, Assign (x, a), Skip, l)
+	| (sigma, Skip, If(b, c1, c2), l)    ->  evalc (sigma, If(b, c1, c2,), Skip, l)
+	| (sigma, Skip, While(b, c), l)      ->  evalc (sigma, While(b,c), Skip, l)
+	| (sigma, Skip, Print a, l) 		 ->  evalc (sigma, Print a, Skip, l)
+	| (sigma, Skip, Test(i, b), l)		 ->  evalc (sigma, Test(i, b), Skip, l) *)
+	| (sigma, Skip, c, l) when c != Skip -> evalc (sigma, c, Skip, l)
+	| (sigma, Assign (x, a), Skip, l)    ->  if (Hashtbl.mem sigma x) 
+											 then Hashtbl.replace sigma x (evala (sigma, a))
+											 else Hashtbl.add sigma x (evala (sigma, a)); 
+											 sigma										 
+    (* | (sigma, Seq  (c1, c2), Skip, l)    ->  (evalc (sigma, c1, c2, l));
+	| (sigma, c1, c2, l)				 ->  evalc (sigma, )
                                     (evalc (sigma, c2))
     | (sigma, If(b, c1, c2))    ->  if (evalb (sigma, b))
                                     then (evalc (sigma, c1))
@@ -75,7 +84,7 @@ let rec evalc (cconf:configuration) : store =
                                     else (Printf.printf "TestFailed\n";
                                     pprintInfo i;
                                     Printf.printf "\n";
-                                    sigma)
+                                    sigma) *)
      (*| _ failwith "Not yet implemented"*)
 
 
