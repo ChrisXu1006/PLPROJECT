@@ -79,7 +79,7 @@ let rec evalc (cconf:configuration) : store =
 	| (sigma, While(b, c), cprime, l)       ->  let lprime = 
 												(if (List.length l == 0) then [(cprime, While(b,c))]
 												else let ccontinue = snd (List.hd l) in
-													(if (ccontinue == While(b, c)) 
+													(if (ccontinue = While(b, c)) 
 														then l 
 														else [(cprime, While(b,c))]@l)) in
 												if (evalb (sigma, b)) 
