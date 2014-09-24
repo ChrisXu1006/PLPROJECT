@@ -84,7 +84,9 @@ let rec evalc (cconf:configuration) : store =
 														else [(cprime, While(b,c))]@l)) in
 												if (evalb (sigma, b)) 
 										        then (evalc (sigma, c, While(b,c), lprime))
-										        else (let lpop = List.tl lprime in evalc (sigma, cprime, Skip, lpop))
+										        else (let cnext = fst (List.hd lprime) in let lpop = List.tl lprime in 
+													(if (List.length lpop == 0) then evalc (sigma, cnext, Skip, lpop)
+												else evalc(sigma, cnext, fst (List.hd lpop), lpop)))
 
  	| (sigma, Break, cprime, l)             -> 	if (List.length l == 0) then (raise IllegalBreak; sigma)
 									            else let cbreak = fst (List.hd l) in 
