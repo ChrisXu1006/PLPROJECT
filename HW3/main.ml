@@ -15,4 +15,5 @@ let () =
       exit 1 in 
   let sigma = Eval.evalc (Eval.make_configuration c) in
   let hashstrint_print = Hashtbl.iter (fun key data -> Printf.printf "%s = %d;\n" key data) in
-  hashstrint_print sigma
+  hashstrint_print sigma;
+  Printf.printf "%s passed\n" filename

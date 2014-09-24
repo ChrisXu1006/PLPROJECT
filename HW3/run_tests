@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#./imp tests/test-01.imp
+#./imp tests/test-02.imp
+./imp tests/test-10.imp
+./imp tests/test-11.imp
+./imp tests/test-12.imp
+./imp tests/test-13.imp
+
