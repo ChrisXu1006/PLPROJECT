@@ -32,7 +32,7 @@ let make_configuration (c:com) : configuration =
 let rec evala (aconf:aconfiguration) : int = 
     match aconf with 
     | (sigma, Int               ari )-> ari
-    | (sigma, Var               ari )-> Hashtbl.find sigma ari
+    | (sigma, Var               ari )-> (try Hashtbl.find sigma ari with _ -> raise (UnboundVariable ari)); 
     | (sigma, Plus    (aexp1, aexp2))-> (evala (sigma, aexp1)) + (evala (sigma, aexp2))
     | (sigma, Minus   (aexp1, aexp2))-> (evala (sigma, aexp1)) - (evala (sigma, aexp2))
     | (sigma, Times   (aexp1, aexp2))-> (evala (sigma, aexp1)) * (evala (sigma, aexp2))
@@ -86,24 +86,23 @@ let rec evalc (cconf:configuration) : store =
 										        then (evalc (sigma, c, While(b,c), lprime))
 										        else (let lpop = List.tl lprime in evalc (sigma, cprime, Skip, lpop))
 
- 	| (sigma, Break, cprime, l)             -> 	if (List.length l == 0) then (Printf.printf "IllegalBreak\n"; sigma)
+ 	| (sigma, Break, cprime, l)             -> 	if (List.length l == 0) then (raise IllegalBreak; sigma)
 									            else let cbreak = fst (List.hd l) in 
 										        let lprime = List.tl l in
 										        evalc (sigma, cbreak, Skip, lprime);
 
-  	| (sigma, Continue, cprime, l)          -> 	if (List.length l == 0) then (Printf.printf "IllegalContinue\n"; sigma)
+  	| (sigma, Continue, cprime, l)          -> 	if (List.length l == 0) then (raise IllegalContinue; sigma)
  									            else let ccontinue = snd (List.hd l) in 
  										        evalc (sigma, ccontinue, (fst (List.hd l)), l);
 
-	| (sigma, Print a, cprime, l)          ->   Printf.printf "%d\n" (evala (sigma, a)); evalc (sigma, cprime, Skip, l)
+	| (sigma, Print a, cprime, l)           ->   Printf.printf "%d\n" (evala (sigma, a)); evalc (sigma, cprime, Skip, l)
 
-	| (sigma, Test (i,  b), cprime, l)     ->   if (evalb (sigma, b))
+	| (sigma, Test (i,  b), cprime, l)      ->   if (evalb (sigma, b))
                                                 then (
                                                       evalc (sigma, cprime, Skip, l))
-	                                            else (Printf.printf "TestFailed\n";
+	                                            else (
+                                                Printf.printf "TestFailed\n";
 	                                            pprintInfo i;
-	                                            Printf.printf "\n";
-                                                (*while true do
-                                                    let x = 2;
-                                                done;*)
+                                                Printf.printf "\n";
+                                                raise (TestFailure "TestFailed");
 	                                            sigma) 											 
