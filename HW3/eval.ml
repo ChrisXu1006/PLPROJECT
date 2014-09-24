@@ -82,19 +82,18 @@ let rec evalc (cconf:configuration) : store =
 													(if (ccontinue == While(b, c)) 
 														then l 
 														else [(cprime, While(b,c))]@l)) in
-												pprintCom(fst (List.hd lprime));
 												if (evalb (sigma, b)) 
 										        then (evalc (sigma, c, While(b,c), lprime))
 										        else (let lpop = List.tl lprime in evalc (sigma, cprime, Skip, lpop))
 
  	| (sigma, Break, cprime, l)             -> 	if (List.length l == 0) then (Printf.printf "IllegalBreak\n"; sigma)
 									            else let cbreak = fst (List.hd l) in 
-										        let lprime = List.tl l in 
+										        let lprime = List.tl l in
 										        evalc (sigma, cbreak, Skip, lprime);
 
   	| (sigma, Continue, cprime, l)          -> 	if (List.length l == 0) then (Printf.printf "IllegalContinue\n"; sigma)
  									            else let ccontinue = snd (List.hd l) in 
- 										        evalc (sigma, ccontinue, Skip, l);
+ 										        evalc (sigma, ccontinue, (fst (List.hd l)), l);
 
 	| (sigma, Print a, cprime, l)          ->   Printf.printf "%d\n" (evala (sigma, a)); evalc (sigma, cprime, Skip, l)
 
