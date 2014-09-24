@@ -64,10 +64,35 @@ let rec evalc (cconf:configuration) : store =
 	| (sigma, Skip, Print a, l) 		 ->  evalc (sigma, Print a, Skip, l)
 	| (sigma, Skip, Test(i, b), l)		 ->  evalc (sigma, Test(i, b), Skip, l) *)
 	| (sigma, Skip, c, l) when c != Skip -> evalc (sigma, c, Skip, l)
-	| (sigma, Assign (x, a), Skip, l)    ->  if (Hashtbl.mem sigma x) 
+	| (sigma, Assign (x, a), c, l)    ->  if (Hashtbl.mem sigma x) 
 											 then Hashtbl.replace sigma x (evala (sigma, a))
 											 else Hashtbl.add sigma x (evala (sigma, a)); 
-											 sigma										 
+											 evalc (sigma, c, Skip, l)
+	| (sigma, Seq(c1, c2), Skip, l)  -> evalc (sigma, c1, c2, l)
+	| (sigma, Seq(c1, c2), cprime, l) when cprime != Skip    -> evalc (sigma, c1, Seq(c2, cprime), l)
+	| (sigma, If(b, c1, c2), cprime, l)   -> if (evalb (sigma, b)) 
+										then evalc (sigma, c1, cprime, l)
+										else evalc (sigma, c2, cprime, l)
+	| (sigma, While(b, c), Skip, l) -> if (evalb (sigma, b)) then (evalc (sigma, c, While(b,c), l))
+										else evalc (sigma, Skip, Skip, l)
+	| (sigma, While(b, c), cprime, l) when cprime != Skip -> let lprime = [(cprime, While(b,c))]@l in
+										if (evalb (sigma, b)) 
+										then (evalc (sigma, c, While(b,c), lprime))
+										else (let lprime = List.tl l in evalc (sigma, cprime, Skip, lprime))
+ 	| (sigma, Break, cprime, l) -> 	if (List.length l == 0) then (Printf.printf "IllegalBreak\n"; sigma)
+									else let cbreak = fst (List.hd l) in 
+										 let lprime = List.tl l in 
+										 evalc (sigma, cbreak, Skip, lprime);
+  	| (sigma, Continue, cprime, l) -> 	if (List.length l == 0) then (Printf.printf "IllegalContinue\n"; sigma)
+ 									else let ccontinue = snd (List.hd l) in 
+ 										 evalc (sigma, ccontinue, Skip, l);
+	 | (sigma, Print a, cprime, l)    ->  Printf.printf "%d\n" (evala (sigma, a)); evalc (sigma, cprime, Skip, l)
+	 | (sigma, Test (i,  b), cprime, l)    ->  if (evalb (sigma, b))
+	                                 then (evalc (sigma, cprime, Skip, l))
+	                                 else (Printf.printf "TestFailed\n";
+	                                 pprintInfo i;
+	                                 Printf.printf "\n";
+	                                 sigma) 											 
     (* | (sigma, Seq  (c1, c2), Skip, l)    ->  (evalc (sigma, c1, c2, l));
 	| (sigma, c1, c2, l)				 ->  evalc (sigma, )
                                     (evalc (sigma, c2))
