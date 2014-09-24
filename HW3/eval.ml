@@ -74,11 +74,16 @@ let rec evalc (cconf:configuration) : store =
 										        then evalc (sigma, c1, cprime, l)
 										        else evalc (sigma, c2, cprime, l)
 
-	| (sigma, While(b, c), Skip, l)         ->  if (evalb (sigma, b)) then (evalc (sigma, c, While(b,c), l))
-										        else evalc (sigma, Skip, Skip, l)
-	| (sigma, While(b, c), cprime, l) 
-    when cprime != Skip                     ->  let lprime = [(cprime, While(b,c))]@l in
-										        if (evalb (sigma, b)) 
+	(* | (sigma, While(b, c), Skip, l)         ->  if (evalb (sigma, b)) then (evalc (sigma, c, While(b,c), l))
+										        else evalc (sigma, Skip, Skip, l) *)
+	| (sigma, While(b, c), cprime, l)       ->  let lprime = 
+												(if (List.length l == 0) then [(cprime, While(b,c))]
+												else let ccontinue = snd (List.hd l) in
+													(if (ccontinue == While(b, c)) 
+														then l 
+														else [(cprime, While(b,c))]@l)) in
+												pprintCom(fst (List.hd lprime));
+												if (evalb (sigma, b)) 
 										        then (evalc (sigma, c, While(b,c), lprime))
 										        else (let lpop = List.tl lprime in evalc (sigma, cprime, Skip, lpop))
 
