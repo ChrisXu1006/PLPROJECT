@@ -1,0 +1,7 @@
+skip;
+m := 100;
+n := 10;
+if m - 50 > n + 50 then q := 1 else q := 5;
+test q = 5;
+q := q * 10;
+test q = 10
