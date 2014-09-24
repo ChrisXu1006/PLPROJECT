@@ -70,8 +70,9 @@ let rec evalc (conf:configuration) : store =
     | (sigma, Print a      )    ->  sp "%d\n" (evala a); sigma
     | (sigma, Test  (i,  b))    ->  if (evalb b)
                                     then (evalc (sigma, Skip))
-                                    else (sp "TestFailed\n";
+                                    else (Printf.printf "TestFailed\n";
                                     pprintInfo i;
+                                    Printf.printf "\n";
                                     sigma)
      (*| _ failwith "Not yet implemented"*)
 
