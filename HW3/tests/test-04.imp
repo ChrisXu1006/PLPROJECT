@@ -1,0 +1,10 @@
+skip;
+a := 1;
+b := 10;
+if a < b + 10 then c := 100 else c := 50;
+print c;
+continue;
+a := 10;
+b := 1;
+test a = 1;
+test b = 10
