@@ -1,0 +1,17 @@
+x := 2;
+z := 0;
+m := 0;
+while (x > 0) do {
+	x := x - 1;
+	y := 3;
+	while (y > 0) do {
+		z := z + 1;
+		y := y - 1
+	};
+	while ( z > 0 ) do {
+		z := z - 1;
+		m := m + 1
+	}
+};
+
+test m = 6
