@@ -100,8 +100,6 @@ let rec evalc (cconf:configuration) : store =
                                                       evalc (sigma, cprime, Skip, l))
 	                                            else (
                                                 Printf.printf "TestFailed\n";
-	                                            pprintInfo i;
-                                                Printf.printf "\n";
-                                                raise (TestFailure "TestFailed");
+                                                raise (TestFailure (strInfo i));
 	                                            sigma)
     | _                                     ->  Printf.printf "This should not happen"; sigma                                             
