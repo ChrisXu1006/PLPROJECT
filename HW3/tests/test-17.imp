@@ -1,0 +1,23 @@
+x := 10;
+y := 5;
+a := 1 + 1;
+b := 10 -5;
+c := 10 * 5;
+d := (a+b) * (8-4);
+test x = 10;
+test y = 5;
+test a = 2;
+test b = 5;
+test c = 50;
+test d = 28; 
+test true;
+test 1 = 1;
+test 1 != 10;
+test 1 < 10;
+test 1 <= 1;
+test 10 > 5;
+test 8 >= 8;
+test not false;
+test true and true;
+test true or  false;
+test false
