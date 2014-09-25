@@ -32,7 +32,7 @@ let make_configuration (c:com) : configuration =
 let rec evala (aconf:aconfiguration) : int = 
     match aconf with 
     | (sigma, Int               ari )-> ari
-    | (sigma, Var               ari )-> (try Hashtbl.find sigma ari with _ -> raise (UnboundVariable ari)); 
+    | (sigma, Var               ari )-> (try Hashtbl.find sigma ari with Not_found -> raise (UnboundVariable ari)); 
     | (sigma, Plus    (aexp1, aexp2))-> (evala (sigma, aexp1)) + (evala (sigma, aexp2))
     | (sigma, Minus   (aexp1, aexp2))-> (evala (sigma, aexp1)) - (evala (sigma, aexp2))
     | (sigma, Times   (aexp1, aexp2))-> (evala (sigma, aexp1)) * (evala (sigma, aexp2))
@@ -74,8 +74,6 @@ let rec evalc (cconf:configuration) : store =
 										        then evalc (sigma, c1, cprime, l)
 										        else evalc (sigma, c2, cprime, l)
 
-	(* | (sigma, While(b, c), Skip, l)         ->  if (evalb (sigma, b)) then (evalc (sigma, c, While(b,c), l))
-										        else evalc (sigma, Skip, Skip, l) *)
 	| (sigma, While(b, c), cprime, l)       ->  let lprime = 
 												(if (List.length l == 0) then [(cprime, While(b,c))]
 												else let ccontinue = snd (List.hd l) in
@@ -88,18 +86,16 @@ let rec evalc (cconf:configuration) : store =
 													(if (List.length lpop == 0) then evalc (sigma, cnext, Skip, lpop)
 												else evalc(sigma, cnext, fst (List.hd lpop), lpop)))
 
- 	| (sigma, Break, cprime, l)             -> 	if (List.length l == 0) then (raise IllegalBreak; sigma)
-									            else let cbreak = fst (List.hd l) in 
+ 	| (sigma, Break, cprime, l)             -> 	(try let cbreak = fst (List.hd l) in 
 										        let lprime = List.tl l in
-										        evalc (sigma, cbreak, Skip, lprime);
+										        evalc (sigma, cbreak, Skip, lprime) with _ -> raise IllegalBreak);
 
-  	| (sigma, Continue, cprime, l)          -> 	if (List.length l == 0) then (raise IllegalContinue; sigma)
- 									            else let ccontinue = snd (List.hd l) in 
- 										        evalc (sigma, ccontinue, (fst (List.hd l)), l);
+  	| (sigma, Continue, cprime, l)          -> 	(try let ccontinue = snd (List.hd l) in 
+ 										        evalc (sigma, ccontinue, (fst (List.hd l)), l) with _ -> raise IllegalContinue);
 
-	| (sigma, Print a, cprime, l)           ->   Printf.printf "%d\n" (evala (sigma, a)); evalc (sigma, cprime, Skip, l)
+	| (sigma, Print a, cprime, l)           ->  Printf.printf "%d\n" (evala (sigma, a)); evalc (sigma, cprime, Skip, l)
 
-	| (sigma, Test (i,  b), cprime, l)      ->   if (evalb (sigma, b))
+	| (sigma, Test (i,  b), cprime, l)      ->  if (evalb (sigma, b))
                                                 then (
                                                       evalc (sigma, cprime, Skip, l))
 	                                            else (
@@ -107,4 +103,5 @@ let rec evalc (cconf:configuration) : store =
 	                                            pprintInfo i;
                                                 Printf.printf "\n";
                                                 raise (TestFailure "TestFailed");
-	                                            sigma) 											 
+	                                            sigma)
+    | _                                     ->  Printf.printf "This should not happen"; sigma                                             
