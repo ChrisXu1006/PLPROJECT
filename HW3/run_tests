@@ -1,9 +1,19 @@
 #!/bin/bash
 
-#./imp tests/test-01.imp
-#./imp tests/test-02.imp
+./imp tests/test-01.imp
+./imp tests/test-02.imp
+./imp tests/test-03.imp
+./imp tests/test-04.imp
+./imp tests/test-05.imp
+./imp tests/test-06.imp
+./imp tests/test-07.imp
+./imp tests/test-08.imp
+./imp tests/test-09.imp
 ./imp tests/test-10.imp
 ./imp tests/test-11.imp
 ./imp tests/test-12.imp
 ./imp tests/test-13.imp
-
+./imp tests/test-14.imp
+./imp tests/test-15.imp
+./imp tests/test-16.imp
+./imp tests/test-17.imp
