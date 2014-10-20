@@ -1,0 +1,1765 @@
+   0  $accept : %entry% $end
+
+   1  aexp : aexp PLUS taexp
+   2       | aexp MINUS taexp
+   3       | taexp
+
+   4  taexp : taexp TIMES aaexp
+   5        | aaexp
+
+   6  aaexp : INT
+   7        | VAR
+   8        | LPAREN aexp RPAREN
+
+   9  lexp : lexp PLUS tlexp
+  10       | lexp MINUS tlexp
+  11       | tlexp
+
+  12  tlexp : tlexp TIMES alexp
+  13        | alexp
+
+  14  alexp : INT
+  15        | VAR
+  16        | DOLLAR VAR
+  17        | LPAREN lexp RPAREN
+
+  18  bexp : bexp OR cbexp
+  19       | cbexp
+
+  20  cbexp : cbexp AND nbexp
+  21        | nbexp
+
+  22  nbexp : NOT abexp
+  23        | abexp
+
+  24  abexp : TRUE
+  25        | FALSE
+  26        | aexp EQUALS aexp
+  27        | aexp NOTEQUALS aexp
+  28        | aexp LESS aexp
+  29        | aexp LESSEQ aexp
+  30        | aexp GREATER aexp
+  31        | aexp GREATEREQ aexp
+  32        | LPAREN bexp RPAREN
+
+  33  scom : SKIP
+  34       | VAR ASSIGN aexp
+  35       | PRINT aexp
+  36       | TEST bexp
+
+  37  com : com SEMI spec icom
+  38      | com SEMI scom
+  39      | icom
+
+  40  icom : IF bexp THEN acom ELSE acom
+  41       | WHILE bexp DO spec acom
+  42       | acom
+
+  43  acom : scom
+  44       | LBRACE com RBRACE
+
+  45  spec : AT assn AT
+
+  46  assn : assn IMPLIES dassn
+  47       | dassn
+
+  48  dassn : dassn OR cassn
+  49        | cassn
+
+  50  cassn : cassn AND nassn
+  51        | nassn
+
+  52  nassn : NOT aassn
+  53        | aassn
+
+  54  aassn : TRUE
+  55        | FALSE
+  56        | lexp EQUALS lexp
+  57        | lexp NOTEQUALS lexp
+  58        | lexp LESS lexp
+  59        | lexp LESSEQ lexp
+  60        | lexp GREATER lexp
+  61        | lexp GREATEREQ lexp
+  62        | FORALL DOLLAR VAR LPAREN assn RPAREN
+  63        | EXISTS DOLLAR VAR LPAREN assn RPAREN
+  64        | LPAREN assn RPAREN
+
+  65  program : spec com spec
+
+  66  %entry% : '\001' program
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . program  (66)
+
+	AT  shift 3
+	.  error
+
+	program  goto 4
+	spec  goto 5
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	spec : AT . assn AT  (45)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 8
+	TRUE  shift 9
+	FALSE  shift 10
+	FORALL  shift 11
+	EXISTS  shift 12
+	NOT  shift 13
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 15
+	tlexp  goto 16
+	alexp  goto 17
+	assn  goto 18
+	dassn  goto 19
+	cassn  goto 20
+	nassn  goto 21
+	aassn  goto 22
+
+
+state 4
+	%entry% : '\001' program .  (66)
+
+	.  reduce 66
+
+
+state 5
+	program : spec . com spec  (65)
+
+	VAR  shift 23
+	TEST  shift 24
+	SKIP  shift 25
+	PRINT  shift 26
+	IF  shift 27
+	WHILE  shift 28
+	LBRACE  shift 29
+	.  error
+
+	com  goto 30
+	scom  goto 31
+	icom  goto 32
+	acom  goto 33
+
+
+state 6
+	alexp : INT .  (14)
+
+	.  reduce 14
+
+
+state 7
+	alexp : VAR .  (15)
+
+	.  reduce 15
+
+
+state 8
+	alexp : LPAREN . lexp RPAREN  (17)
+	aassn : LPAREN . assn RPAREN  (64)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 8
+	TRUE  shift 9
+	FALSE  shift 10
+	FORALL  shift 11
+	EXISTS  shift 12
+	NOT  shift 13
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 34
+	tlexp  goto 16
+	alexp  goto 17
+	assn  goto 35
+	dassn  goto 19
+	cassn  goto 20
+	nassn  goto 21
+	aassn  goto 22
+
+
+state 9
+	aassn : TRUE .  (54)
+
+	.  reduce 54
+
+
+state 10
+	aassn : FALSE .  (55)
+
+	.  reduce 55
+
+
+state 11
+	aassn : FORALL . DOLLAR VAR LPAREN assn RPAREN  (62)
+
+	DOLLAR  shift 36
+	.  error
+
+
+state 12
+	aassn : EXISTS . DOLLAR VAR LPAREN assn RPAREN  (63)
+
+	DOLLAR  shift 37
+	.  error
+
+
+state 13
+	nassn : NOT . aassn  (52)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 8
+	TRUE  shift 9
+	FALSE  shift 10
+	FORALL  shift 11
+	EXISTS  shift 12
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 15
+	tlexp  goto 16
+	alexp  goto 17
+	aassn  goto 38
+
+
+state 14
+	alexp : DOLLAR . VAR  (16)
+
+	VAR  shift 39
+	.  error
+
+
+state 15
+	lexp : lexp . PLUS tlexp  (9)
+	lexp : lexp . MINUS tlexp  (10)
+	aassn : lexp . EQUALS lexp  (56)
+	aassn : lexp . NOTEQUALS lexp  (57)
+	aassn : lexp . LESS lexp  (58)
+	aassn : lexp . LESSEQ lexp  (59)
+	aassn : lexp . GREATER lexp  (60)
+	aassn : lexp . GREATEREQ lexp  (61)
+
+	PLUS  shift 40
+	MINUS  shift 41
+	EQUALS  shift 42
+	NOTEQUALS  shift 43
+	LESS  shift 44
+	LESSEQ  shift 45
+	GREATER  shift 46
+	GREATEREQ  shift 47
+	.  error
+
+
+state 16
+	lexp : tlexp .  (11)
+	tlexp : tlexp . TIMES alexp  (12)
+
+	TIMES  shift 48
+	PLUS  reduce 11
+	MINUS  reduce 11
+	RPAREN  reduce 11
+	EQUALS  reduce 11
+	NOTEQUALS  reduce 11
+	LESS  reduce 11
+	LESSEQ  reduce 11
+	GREATER  reduce 11
+	GREATEREQ  reduce 11
+	AND  reduce 11
+	OR  reduce 11
+	IMPLIES  reduce 11
+	AT  reduce 11
+
+
+state 17
+	tlexp : alexp .  (13)
+
+	.  reduce 13
+
+
+state 18
+	spec : AT assn . AT  (45)
+	assn : assn . IMPLIES dassn  (46)
+
+	IMPLIES  shift 49
+	AT  shift 50
+	.  error
+
+
+state 19
+	assn : dassn .  (47)
+	dassn : dassn . OR cassn  (48)
+
+	OR  shift 51
+	RPAREN  reduce 47
+	IMPLIES  reduce 47
+	AT  reduce 47
+
+
+state 20
+	dassn : cassn .  (49)
+	cassn : cassn . AND nassn  (50)
+
+	AND  shift 52
+	RPAREN  reduce 49
+	OR  reduce 49
+	IMPLIES  reduce 49
+	AT  reduce 49
+
+
+state 21
+	cassn : nassn .  (51)
+
+	.  reduce 51
+
+
+state 22
+	nassn : aassn .  (53)
+
+	.  reduce 53
+
+
+state 23
+	scom : VAR . ASSIGN aexp  (34)
+
+	ASSIGN  shift 53
+	.  error
+
+
+state 24
+	scom : TEST . bexp  (36)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 56
+	TRUE  shift 57
+	FALSE  shift 58
+	NOT  shift 59
+	.  error
+
+	aexp  goto 60
+	bexp  goto 61
+	taexp  goto 62
+	aaexp  goto 63
+	cbexp  goto 64
+	nbexp  goto 65
+	abexp  goto 66
+
+
+state 25
+	scom : SKIP .  (33)
+
+	.  reduce 33
+
+
+state 26
+	scom : PRINT . aexp  (35)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	aexp  goto 68
+	taexp  goto 62
+	aaexp  goto 63
+
+
+state 27
+	icom : IF . bexp THEN acom ELSE acom  (40)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 56
+	TRUE  shift 57
+	FALSE  shift 58
+	NOT  shift 59
+	.  error
+
+	aexp  goto 60
+	bexp  goto 69
+	taexp  goto 62
+	aaexp  goto 63
+	cbexp  goto 64
+	nbexp  goto 65
+	abexp  goto 66
+
+
+state 28
+	icom : WHILE . bexp DO spec acom  (41)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 56
+	TRUE  shift 57
+	FALSE  shift 58
+	NOT  shift 59
+	.  error
+
+	aexp  goto 60
+	bexp  goto 70
+	taexp  goto 62
+	aaexp  goto 63
+	cbexp  goto 64
+	nbexp  goto 65
+	abexp  goto 66
+
+
+state 29
+	acom : LBRACE . com RBRACE  (44)
+
+	VAR  shift 23
+	TEST  shift 24
+	SKIP  shift 25
+	PRINT  shift 26
+	IF  shift 27
+	WHILE  shift 28
+	LBRACE  shift 29
+	.  error
+
+	com  goto 71
+	scom  goto 31
+	icom  goto 32
+	acom  goto 33
+
+
+state 30
+	com : com . SEMI spec icom  (37)
+	com : com . SEMI scom  (38)
+	program : spec com . spec  (65)
+
+	SEMI  shift 72
+	AT  shift 3
+	.  error
+
+	spec  goto 73
+
+
+state 31
+	acom : scom .  (43)
+
+	.  reduce 43
+
+
+state 32
+	com : icom .  (39)
+
+	.  reduce 39
+
+
+state 33
+	icom : acom .  (42)
+
+	.  reduce 42
+
+
+state 34
+	lexp : lexp . PLUS tlexp  (9)
+	lexp : lexp . MINUS tlexp  (10)
+	alexp : LPAREN lexp . RPAREN  (17)
+	aassn : lexp . EQUALS lexp  (56)
+	aassn : lexp . NOTEQUALS lexp  (57)
+	aassn : lexp . LESS lexp  (58)
+	aassn : lexp . LESSEQ lexp  (59)
+	aassn : lexp . GREATER lexp  (60)
+	aassn : lexp . GREATEREQ lexp  (61)
+
+	PLUS  shift 40
+	MINUS  shift 41
+	RPAREN  shift 74
+	EQUALS  shift 42
+	NOTEQUALS  shift 43
+	LESS  shift 44
+	LESSEQ  shift 45
+	GREATER  shift 46
+	GREATEREQ  shift 47
+	.  error
+
+
+state 35
+	assn : assn . IMPLIES dassn  (46)
+	aassn : LPAREN assn . RPAREN  (64)
+
+	RPAREN  shift 75
+	IMPLIES  shift 49
+	.  error
+
+
+state 36
+	aassn : FORALL DOLLAR . VAR LPAREN assn RPAREN  (62)
+
+	VAR  shift 76
+	.  error
+
+
+state 37
+	aassn : EXISTS DOLLAR . VAR LPAREN assn RPAREN  (63)
+
+	VAR  shift 77
+	.  error
+
+
+state 38
+	nassn : NOT aassn .  (52)
+
+	.  reduce 52
+
+
+state 39
+	alexp : DOLLAR VAR .  (16)
+
+	.  reduce 16
+
+
+state 40
+	lexp : lexp PLUS . tlexp  (9)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 78
+	DOLLAR  shift 14
+	.  error
+
+	tlexp  goto 79
+	alexp  goto 17
+
+
+state 41
+	lexp : lexp MINUS . tlexp  (10)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 78
+	DOLLAR  shift 14
+	.  error
+
+	tlexp  goto 80
+	alexp  goto 17
+
+
+state 42
+	aassn : lexp EQUALS . lexp  (56)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 78
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 81
+	tlexp  goto 16
+	alexp  goto 17
+
+
+state 43
+	aassn : lexp NOTEQUALS . lexp  (57)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 78
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 82
+	tlexp  goto 16
+	alexp  goto 17
+
+
+state 44
+	aassn : lexp LESS . lexp  (58)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 78
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 83
+	tlexp  goto 16
+	alexp  goto 17
+
+
+state 45
+	aassn : lexp LESSEQ . lexp  (59)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 78
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 84
+	tlexp  goto 16
+	alexp  goto 17
+
+
+state 46
+	aassn : lexp GREATER . lexp  (60)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 78
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 85
+	tlexp  goto 16
+	alexp  goto 17
+
+
+state 47
+	aassn : lexp GREATEREQ . lexp  (61)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 78
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 86
+	tlexp  goto 16
+	alexp  goto 17
+
+
+state 48
+	tlexp : tlexp TIMES . alexp  (12)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 78
+	DOLLAR  shift 14
+	.  error
+
+	alexp  goto 87
+
+
+state 49
+	assn : assn IMPLIES . dassn  (46)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 8
+	TRUE  shift 9
+	FALSE  shift 10
+	FORALL  shift 11
+	EXISTS  shift 12
+	NOT  shift 13
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 15
+	tlexp  goto 16
+	alexp  goto 17
+	dassn  goto 88
+	cassn  goto 20
+	nassn  goto 21
+	aassn  goto 22
+
+
+state 50
+	spec : AT assn AT .  (45)
+
+	.  reduce 45
+
+
+state 51
+	dassn : dassn OR . cassn  (48)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 8
+	TRUE  shift 9
+	FALSE  shift 10
+	FORALL  shift 11
+	EXISTS  shift 12
+	NOT  shift 13
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 15
+	tlexp  goto 16
+	alexp  goto 17
+	cassn  goto 89
+	nassn  goto 21
+	aassn  goto 22
+
+
+state 52
+	cassn : cassn AND . nassn  (50)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 8
+	TRUE  shift 9
+	FALSE  shift 10
+	FORALL  shift 11
+	EXISTS  shift 12
+	NOT  shift 13
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 15
+	tlexp  goto 16
+	alexp  goto 17
+	nassn  goto 90
+	aassn  goto 22
+
+
+state 53
+	scom : VAR ASSIGN . aexp  (34)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	aexp  goto 91
+	taexp  goto 62
+	aaexp  goto 63
+
+
+state 54
+	aaexp : INT .  (6)
+
+	.  reduce 6
+
+
+state 55
+	aaexp : VAR .  (7)
+
+	.  reduce 7
+
+
+state 56
+	aaexp : LPAREN . aexp RPAREN  (8)
+	abexp : LPAREN . bexp RPAREN  (32)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 56
+	TRUE  shift 57
+	FALSE  shift 58
+	NOT  shift 59
+	.  error
+
+	aexp  goto 92
+	bexp  goto 93
+	taexp  goto 62
+	aaexp  goto 63
+	cbexp  goto 64
+	nbexp  goto 65
+	abexp  goto 66
+
+
+state 57
+	abexp : TRUE .  (24)
+
+	.  reduce 24
+
+
+state 58
+	abexp : FALSE .  (25)
+
+	.  reduce 25
+
+
+state 59
+	nbexp : NOT . abexp  (22)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 56
+	TRUE  shift 57
+	FALSE  shift 58
+	.  error
+
+	aexp  goto 60
+	taexp  goto 62
+	aaexp  goto 63
+	abexp  goto 94
+
+
+state 60
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	abexp : aexp . EQUALS aexp  (26)
+	abexp : aexp . NOTEQUALS aexp  (27)
+	abexp : aexp . LESS aexp  (28)
+	abexp : aexp . LESSEQ aexp  (29)
+	abexp : aexp . GREATER aexp  (30)
+	abexp : aexp . GREATEREQ aexp  (31)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	EQUALS  shift 97
+	NOTEQUALS  shift 98
+	LESS  shift 99
+	LESSEQ  shift 100
+	GREATER  shift 101
+	GREATEREQ  shift 102
+	.  error
+
+
+state 61
+	bexp : bexp . OR cbexp  (18)
+	scom : TEST bexp .  (36)
+
+	OR  shift 103
+	SEMI  reduce 36
+	ELSE  reduce 36
+	RBRACE  reduce 36
+	AT  reduce 36
+
+
+state 62
+	aexp : taexp .  (3)
+	taexp : taexp . TIMES aaexp  (4)
+
+	TIMES  shift 104
+	PLUS  reduce 3
+	MINUS  reduce 3
+	RPAREN  reduce 3
+	EQUALS  reduce 3
+	NOTEQUALS  reduce 3
+	LESS  reduce 3
+	LESSEQ  reduce 3
+	GREATER  reduce 3
+	GREATEREQ  reduce 3
+	AND  reduce 3
+	OR  reduce 3
+	SEMI  reduce 3
+	THEN  reduce 3
+	ELSE  reduce 3
+	DO  reduce 3
+	RBRACE  reduce 3
+	AT  reduce 3
+
+
+state 63
+	taexp : aaexp .  (5)
+
+	.  reduce 5
+
+
+state 64
+	bexp : cbexp .  (19)
+	cbexp : cbexp . AND nbexp  (20)
+
+	AND  shift 105
+	RPAREN  reduce 19
+	OR  reduce 19
+	SEMI  reduce 19
+	THEN  reduce 19
+	ELSE  reduce 19
+	DO  reduce 19
+	RBRACE  reduce 19
+	AT  reduce 19
+
+
+state 65
+	cbexp : nbexp .  (21)
+
+	.  reduce 21
+
+
+state 66
+	nbexp : abexp .  (23)
+
+	.  reduce 23
+
+
+state 67
+	aaexp : LPAREN . aexp RPAREN  (8)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	aexp  goto 106
+	taexp  goto 62
+	aaexp  goto 63
+
+
+state 68
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	scom : PRINT aexp .  (35)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	SEMI  reduce 35
+	ELSE  reduce 35
+	RBRACE  reduce 35
+	AT  reduce 35
+
+
+state 69
+	bexp : bexp . OR cbexp  (18)
+	icom : IF bexp . THEN acom ELSE acom  (40)
+
+	OR  shift 103
+	THEN  shift 107
+	.  error
+
+
+state 70
+	bexp : bexp . OR cbexp  (18)
+	icom : WHILE bexp . DO spec acom  (41)
+
+	OR  shift 103
+	DO  shift 108
+	.  error
+
+
+state 71
+	com : com . SEMI spec icom  (37)
+	com : com . SEMI scom  (38)
+	acom : LBRACE com . RBRACE  (44)
+
+	SEMI  shift 72
+	RBRACE  shift 109
+	.  error
+
+
+state 72
+	com : com SEMI . spec icom  (37)
+	com : com SEMI . scom  (38)
+
+	VAR  shift 23
+	TEST  shift 24
+	SKIP  shift 25
+	PRINT  shift 26
+	AT  shift 3
+	.  error
+
+	scom  goto 110
+	spec  goto 111
+
+
+state 73
+	program : spec com spec .  (65)
+
+	.  reduce 65
+
+
+state 74
+	alexp : LPAREN lexp RPAREN .  (17)
+
+	.  reduce 17
+
+
+state 75
+	aassn : LPAREN assn RPAREN .  (64)
+
+	.  reduce 64
+
+
+state 76
+	aassn : FORALL DOLLAR VAR . LPAREN assn RPAREN  (62)
+
+	LPAREN  shift 112
+	.  error
+
+
+state 77
+	aassn : EXISTS DOLLAR VAR . LPAREN assn RPAREN  (63)
+
+	LPAREN  shift 113
+	.  error
+
+
+state 78
+	alexp : LPAREN . lexp RPAREN  (17)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 78
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 114
+	tlexp  goto 16
+	alexp  goto 17
+
+
+state 79
+	lexp : lexp PLUS tlexp .  (9)
+	tlexp : tlexp . TIMES alexp  (12)
+
+	TIMES  shift 48
+	PLUS  reduce 9
+	MINUS  reduce 9
+	RPAREN  reduce 9
+	EQUALS  reduce 9
+	NOTEQUALS  reduce 9
+	LESS  reduce 9
+	LESSEQ  reduce 9
+	GREATER  reduce 9
+	GREATEREQ  reduce 9
+	AND  reduce 9
+	OR  reduce 9
+	IMPLIES  reduce 9
+	AT  reduce 9
+
+
+state 80
+	lexp : lexp MINUS tlexp .  (10)
+	tlexp : tlexp . TIMES alexp  (12)
+
+	TIMES  shift 48
+	PLUS  reduce 10
+	MINUS  reduce 10
+	RPAREN  reduce 10
+	EQUALS  reduce 10
+	NOTEQUALS  reduce 10
+	LESS  reduce 10
+	LESSEQ  reduce 10
+	GREATER  reduce 10
+	GREATEREQ  reduce 10
+	AND  reduce 10
+	OR  reduce 10
+	IMPLIES  reduce 10
+	AT  reduce 10
+
+
+state 81
+	lexp : lexp . PLUS tlexp  (9)
+	lexp : lexp . MINUS tlexp  (10)
+	aassn : lexp EQUALS lexp .  (56)
+
+	PLUS  shift 40
+	MINUS  shift 41
+	RPAREN  reduce 56
+	AND  reduce 56
+	OR  reduce 56
+	IMPLIES  reduce 56
+	AT  reduce 56
+
+
+state 82
+	lexp : lexp . PLUS tlexp  (9)
+	lexp : lexp . MINUS tlexp  (10)
+	aassn : lexp NOTEQUALS lexp .  (57)
+
+	PLUS  shift 40
+	MINUS  shift 41
+	RPAREN  reduce 57
+	AND  reduce 57
+	OR  reduce 57
+	IMPLIES  reduce 57
+	AT  reduce 57
+
+
+state 83
+	lexp : lexp . PLUS tlexp  (9)
+	lexp : lexp . MINUS tlexp  (10)
+	aassn : lexp LESS lexp .  (58)
+
+	PLUS  shift 40
+	MINUS  shift 41
+	RPAREN  reduce 58
+	AND  reduce 58
+	OR  reduce 58
+	IMPLIES  reduce 58
+	AT  reduce 58
+
+
+state 84
+	lexp : lexp . PLUS tlexp  (9)
+	lexp : lexp . MINUS tlexp  (10)
+	aassn : lexp LESSEQ lexp .  (59)
+
+	PLUS  shift 40
+	MINUS  shift 41
+	RPAREN  reduce 59
+	AND  reduce 59
+	OR  reduce 59
+	IMPLIES  reduce 59
+	AT  reduce 59
+
+
+state 85
+	lexp : lexp . PLUS tlexp  (9)
+	lexp : lexp . MINUS tlexp  (10)
+	aassn : lexp GREATER lexp .  (60)
+
+	PLUS  shift 40
+	MINUS  shift 41
+	RPAREN  reduce 60
+	AND  reduce 60
+	OR  reduce 60
+	IMPLIES  reduce 60
+	AT  reduce 60
+
+
+state 86
+	lexp : lexp . PLUS tlexp  (9)
+	lexp : lexp . MINUS tlexp  (10)
+	aassn : lexp GREATEREQ lexp .  (61)
+
+	PLUS  shift 40
+	MINUS  shift 41
+	RPAREN  reduce 61
+	AND  reduce 61
+	OR  reduce 61
+	IMPLIES  reduce 61
+	AT  reduce 61
+
+
+state 87
+	tlexp : tlexp TIMES alexp .  (12)
+
+	.  reduce 12
+
+
+state 88
+	assn : assn IMPLIES dassn .  (46)
+	dassn : dassn . OR cassn  (48)
+
+	OR  shift 51
+	RPAREN  reduce 46
+	IMPLIES  reduce 46
+	AT  reduce 46
+
+
+state 89
+	dassn : dassn OR cassn .  (48)
+	cassn : cassn . AND nassn  (50)
+
+	AND  shift 52
+	RPAREN  reduce 48
+	OR  reduce 48
+	IMPLIES  reduce 48
+	AT  reduce 48
+
+
+state 90
+	cassn : cassn AND nassn .  (50)
+
+	.  reduce 50
+
+
+state 91
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	scom : VAR ASSIGN aexp .  (34)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	SEMI  reduce 34
+	ELSE  reduce 34
+	RBRACE  reduce 34
+	AT  reduce 34
+
+
+state 92
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	aaexp : LPAREN aexp . RPAREN  (8)
+	abexp : aexp . EQUALS aexp  (26)
+	abexp : aexp . NOTEQUALS aexp  (27)
+	abexp : aexp . LESS aexp  (28)
+	abexp : aexp . LESSEQ aexp  (29)
+	abexp : aexp . GREATER aexp  (30)
+	abexp : aexp . GREATEREQ aexp  (31)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	RPAREN  shift 115
+	EQUALS  shift 97
+	NOTEQUALS  shift 98
+	LESS  shift 99
+	LESSEQ  shift 100
+	GREATER  shift 101
+	GREATEREQ  shift 102
+	.  error
+
+
+state 93
+	bexp : bexp . OR cbexp  (18)
+	abexp : LPAREN bexp . RPAREN  (32)
+
+	RPAREN  shift 116
+	OR  shift 103
+	.  error
+
+
+state 94
+	nbexp : NOT abexp .  (22)
+
+	.  reduce 22
+
+
+state 95
+	aexp : aexp PLUS . taexp  (1)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	taexp  goto 117
+	aaexp  goto 63
+
+
+state 96
+	aexp : aexp MINUS . taexp  (2)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	taexp  goto 118
+	aaexp  goto 63
+
+
+state 97
+	abexp : aexp EQUALS . aexp  (26)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	aexp  goto 119
+	taexp  goto 62
+	aaexp  goto 63
+
+
+state 98
+	abexp : aexp NOTEQUALS . aexp  (27)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	aexp  goto 120
+	taexp  goto 62
+	aaexp  goto 63
+
+
+state 99
+	abexp : aexp LESS . aexp  (28)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	aexp  goto 121
+	taexp  goto 62
+	aaexp  goto 63
+
+
+state 100
+	abexp : aexp LESSEQ . aexp  (29)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	aexp  goto 122
+	taexp  goto 62
+	aaexp  goto 63
+
+
+state 101
+	abexp : aexp GREATER . aexp  (30)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	aexp  goto 123
+	taexp  goto 62
+	aaexp  goto 63
+
+
+state 102
+	abexp : aexp GREATEREQ . aexp  (31)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	aexp  goto 124
+	taexp  goto 62
+	aaexp  goto 63
+
+
+state 103
+	bexp : bexp OR . cbexp  (18)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 56
+	TRUE  shift 57
+	FALSE  shift 58
+	NOT  shift 59
+	.  error
+
+	aexp  goto 60
+	taexp  goto 62
+	aaexp  goto 63
+	cbexp  goto 125
+	nbexp  goto 65
+	abexp  goto 66
+
+
+state 104
+	taexp : taexp TIMES . aaexp  (4)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 67
+	.  error
+
+	aaexp  goto 126
+
+
+state 105
+	cbexp : cbexp AND . nbexp  (20)
+
+	INT  shift 54
+	VAR  shift 55
+	LPAREN  shift 56
+	TRUE  shift 57
+	FALSE  shift 58
+	NOT  shift 59
+	.  error
+
+	aexp  goto 60
+	taexp  goto 62
+	aaexp  goto 63
+	nbexp  goto 127
+	abexp  goto 66
+
+
+state 106
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	aaexp : LPAREN aexp . RPAREN  (8)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	RPAREN  shift 115
+	.  error
+
+
+state 107
+	icom : IF bexp THEN . acom ELSE acom  (40)
+
+	VAR  shift 23
+	TEST  shift 24
+	SKIP  shift 25
+	PRINT  shift 26
+	LBRACE  shift 29
+	.  error
+
+	scom  goto 31
+	acom  goto 128
+
+
+state 108
+	icom : WHILE bexp DO . spec acom  (41)
+
+	AT  shift 3
+	.  error
+
+	spec  goto 129
+
+
+state 109
+	acom : LBRACE com RBRACE .  (44)
+
+	.  reduce 44
+
+
+state 110
+	com : com SEMI scom .  (38)
+
+	.  reduce 38
+
+
+state 111
+	com : com SEMI spec . icom  (37)
+
+	VAR  shift 23
+	TEST  shift 24
+	SKIP  shift 25
+	PRINT  shift 26
+	IF  shift 27
+	WHILE  shift 28
+	LBRACE  shift 29
+	.  error
+
+	scom  goto 31
+	icom  goto 130
+	acom  goto 33
+
+
+state 112
+	aassn : FORALL DOLLAR VAR LPAREN . assn RPAREN  (62)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 8
+	TRUE  shift 9
+	FALSE  shift 10
+	FORALL  shift 11
+	EXISTS  shift 12
+	NOT  shift 13
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 15
+	tlexp  goto 16
+	alexp  goto 17
+	assn  goto 131
+	dassn  goto 19
+	cassn  goto 20
+	nassn  goto 21
+	aassn  goto 22
+
+
+state 113
+	aassn : EXISTS DOLLAR VAR LPAREN . assn RPAREN  (63)
+
+	INT  shift 6
+	VAR  shift 7
+	LPAREN  shift 8
+	TRUE  shift 9
+	FALSE  shift 10
+	FORALL  shift 11
+	EXISTS  shift 12
+	NOT  shift 13
+	DOLLAR  shift 14
+	.  error
+
+	lexp  goto 15
+	tlexp  goto 16
+	alexp  goto 17
+	assn  goto 132
+	dassn  goto 19
+	cassn  goto 20
+	nassn  goto 21
+	aassn  goto 22
+
+
+state 114
+	lexp : lexp . PLUS tlexp  (9)
+	lexp : lexp . MINUS tlexp  (10)
+	alexp : LPAREN lexp . RPAREN  (17)
+
+	PLUS  shift 40
+	MINUS  shift 41
+	RPAREN  shift 74
+	.  error
+
+
+state 115
+	aaexp : LPAREN aexp RPAREN .  (8)
+
+	.  reduce 8
+
+
+state 116
+	abexp : LPAREN bexp RPAREN .  (32)
+
+	.  reduce 32
+
+
+state 117
+	aexp : aexp PLUS taexp .  (1)
+	taexp : taexp . TIMES aaexp  (4)
+
+	TIMES  shift 104
+	PLUS  reduce 1
+	MINUS  reduce 1
+	RPAREN  reduce 1
+	EQUALS  reduce 1
+	NOTEQUALS  reduce 1
+	LESS  reduce 1
+	LESSEQ  reduce 1
+	GREATER  reduce 1
+	GREATEREQ  reduce 1
+	AND  reduce 1
+	OR  reduce 1
+	SEMI  reduce 1
+	THEN  reduce 1
+	ELSE  reduce 1
+	DO  reduce 1
+	RBRACE  reduce 1
+	AT  reduce 1
+
+
+state 118
+	aexp : aexp MINUS taexp .  (2)
+	taexp : taexp . TIMES aaexp  (4)
+
+	TIMES  shift 104
+	PLUS  reduce 2
+	MINUS  reduce 2
+	RPAREN  reduce 2
+	EQUALS  reduce 2
+	NOTEQUALS  reduce 2
+	LESS  reduce 2
+	LESSEQ  reduce 2
+	GREATER  reduce 2
+	GREATEREQ  reduce 2
+	AND  reduce 2
+	OR  reduce 2
+	SEMI  reduce 2
+	THEN  reduce 2
+	ELSE  reduce 2
+	DO  reduce 2
+	RBRACE  reduce 2
+	AT  reduce 2
+
+
+state 119
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	abexp : aexp EQUALS aexp .  (26)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	RPAREN  reduce 26
+	AND  reduce 26
+	OR  reduce 26
+	SEMI  reduce 26
+	THEN  reduce 26
+	ELSE  reduce 26
+	DO  reduce 26
+	RBRACE  reduce 26
+	AT  reduce 26
+
+
+state 120
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	abexp : aexp NOTEQUALS aexp .  (27)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	RPAREN  reduce 27
+	AND  reduce 27
+	OR  reduce 27
+	SEMI  reduce 27
+	THEN  reduce 27
+	ELSE  reduce 27
+	DO  reduce 27
+	RBRACE  reduce 27
+	AT  reduce 27
+
+
+state 121
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	abexp : aexp LESS aexp .  (28)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	RPAREN  reduce 28
+	AND  reduce 28
+	OR  reduce 28
+	SEMI  reduce 28
+	THEN  reduce 28
+	ELSE  reduce 28
+	DO  reduce 28
+	RBRACE  reduce 28
+	AT  reduce 28
+
+
+state 122
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	abexp : aexp LESSEQ aexp .  (29)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	RPAREN  reduce 29
+	AND  reduce 29
+	OR  reduce 29
+	SEMI  reduce 29
+	THEN  reduce 29
+	ELSE  reduce 29
+	DO  reduce 29
+	RBRACE  reduce 29
+	AT  reduce 29
+
+
+state 123
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	abexp : aexp GREATER aexp .  (30)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	RPAREN  reduce 30
+	AND  reduce 30
+	OR  reduce 30
+	SEMI  reduce 30
+	THEN  reduce 30
+	ELSE  reduce 30
+	DO  reduce 30
+	RBRACE  reduce 30
+	AT  reduce 30
+
+
+state 124
+	aexp : aexp . PLUS taexp  (1)
+	aexp : aexp . MINUS taexp  (2)
+	abexp : aexp GREATEREQ aexp .  (31)
+
+	PLUS  shift 95
+	MINUS  shift 96
+	RPAREN  reduce 31
+	AND  reduce 31
+	OR  reduce 31
+	SEMI  reduce 31
+	THEN  reduce 31
+	ELSE  reduce 31
+	DO  reduce 31
+	RBRACE  reduce 31
+	AT  reduce 31
+
+
+state 125
+	bexp : bexp OR cbexp .  (18)
+	cbexp : cbexp . AND nbexp  (20)
+
+	AND  shift 105
+	RPAREN  reduce 18
+	OR  reduce 18
+	SEMI  reduce 18
+	THEN  reduce 18
+	ELSE  reduce 18
+	DO  reduce 18
+	RBRACE  reduce 18
+	AT  reduce 18
+
+
+state 126
+	taexp : taexp TIMES aaexp .  (4)
+
+	.  reduce 4
+
+
+state 127
+	cbexp : cbexp AND nbexp .  (20)
+
+	.  reduce 20
+
+
+state 128
+	icom : IF bexp THEN acom . ELSE acom  (40)
+
+	ELSE  shift 133
+	.  error
+
+
+state 129
+	icom : WHILE bexp DO spec . acom  (41)
+
+	VAR  shift 23
+	TEST  shift 24
+	SKIP  shift 25
+	PRINT  shift 26
+	LBRACE  shift 29
+	.  error
+
+	scom  goto 31
+	acom  goto 134
+
+
+state 130
+	com : com SEMI spec icom .  (37)
+
+	.  reduce 37
+
+
+state 131
+	assn : assn . IMPLIES dassn  (46)
+	aassn : FORALL DOLLAR VAR LPAREN assn . RPAREN  (62)
+
+	RPAREN  shift 135
+	IMPLIES  shift 49
+	.  error
+
+
+state 132
+	assn : assn . IMPLIES dassn  (46)
+	aassn : EXISTS DOLLAR VAR LPAREN assn . RPAREN  (63)
+
+	RPAREN  shift 136
+	IMPLIES  shift 49
+	.  error
+
+
+state 133
+	icom : IF bexp THEN acom ELSE . acom  (40)
+
+	VAR  shift 23
+	TEST  shift 24
+	SKIP  shift 25
+	PRINT  shift 26
+	LBRACE  shift 29
+	.  error
+
+	scom  goto 31
+	acom  goto 137
+
+
+state 134
+	icom : WHILE bexp DO spec acom .  (41)
+
+	.  reduce 41
+
+
+state 135
+	aassn : FORALL DOLLAR VAR LPAREN assn RPAREN .  (62)
+
+	.  reduce 62
+
+
+state 136
+	aassn : EXISTS DOLLAR VAR LPAREN assn RPAREN .  (63)
+
+	.  reduce 63
+
+
+state 137
+	icom : IF bexp THEN acom ELSE acom .  (40)
+
+	.  reduce 40
+
+
+39 terminals, 23 nonterminals
+67 grammar rules, 138 states
