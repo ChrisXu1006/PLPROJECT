@@ -1,0 +1,6 @@
+@ x = $m and y = $n @
+while (y > 0)) do 
+  @ x + 2*y = $m + 2*$n @
+  { y := y - 1;
+    x := x + 2 }
+@ x = $m + 2*$n @
