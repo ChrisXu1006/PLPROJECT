@@ -88,7 +88,19 @@ and substAssn (l:lexp) (x:var) (p:assn) : assn =
       AExists(i,substAssn l x p1)
 
 let rec gens ((pre,sc,post): assn * scom * assn) : assn list = 
-  failwith "Kurt"
-
+    match sc with
+    | Skip          ->
+      [AImplies( pre, post )]
+    | Print (a)     ->
+      [AImplies( pre, post )]
+    | Test (info, b) ->
+      [AImplies ( pre, AAnd( assn_of_bexp(b), post ) )]
+    | Assign ( var, a) ->
+      let la = lexp_of_aexp(a) in
+      [AImplies ( pre, substAssn la var post )]
+            
 and genc ((pre,c,post): assn * com * assn) : assn list = 
-  failwith "Godel"
+    match c with 
+    | Simple (sc) ->
+      gens( pre, sc, post )
+    |_ -> failwith "Godel"
