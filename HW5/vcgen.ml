@@ -98,6 +98,7 @@ let rec gens ((pre,sc,post): assn * scom * assn) : assn list =
     | Assign ( var, a)  ->
       let la = lexp_of_aexp(a) in
       [AImplies ( pre, substAssn la var post )]
+	| _ -> failwith "Kurt"
             
 and genc ((pre,c,post): assn * com * assn) : assn list = 
     match c with 
@@ -116,7 +117,12 @@ and genc ((pre,c,post): assn * com * assn) : assn list =
         let la = lexp_of_aexp(a) in
         let middle = substAssn la var post in
         genc( pre, c1, middle))
-    | If ( b, c1, c2 )      ->
+	| Seq (c1, p, c2)      ->
+	  genc(pre, c1, p) @ genc(p, c2, post)
+	| If ( b, c1, c2 )      ->
       let assnb = assn_of_bexp(b) in   
       genc(AAnd( assnb, pre ), c1, post) @ genc(AAnd ( ANot(assnb), pre ), c2, post)
-    |_ -> failwith "Godel"
+	| While (b, p, c)       ->
+	  let assnb = assn_of_bexp(b) in
+	  [AImplies(pre, p)] @ [AImplies( AAnd( p, ANot(assnb) ), post )] @ genc(AAnd( p, assnb ), c, p)	
+    | _ -> failwith "Godel"
