@@ -89,18 +89,34 @@ and substAssn (l:lexp) (x:var) (p:assn) : assn =
 
 let rec gens ((pre,sc,post): assn * scom * assn) : assn list = 
     match sc with
-    | Skip          ->
+    | Skip              ->
       [AImplies( pre, post )]
-    | Print (a)     ->
+    | Print (a)         ->
       [AImplies( pre, post )]
-    | Test (info, b) ->
+    | Test (info, b)    ->
       [AImplies ( pre, AAnd( assn_of_bexp(b), post ) )]
-    | Assign ( var, a) ->
+    | Assign ( var, a)  ->
       let la = lexp_of_aexp(a) in
       [AImplies ( pre, substAssn la var post )]
             
 and genc ((pre,c,post): assn * com * assn) : assn list = 
     match c with 
-    | Simple (sc) ->
+    | Simple (sc)           ->
       gens( pre, sc, post )
+    | SeqSimple ( c1, s2 )  ->
+      (match s2 with
+      | Skip            ->
+        genc( pre, c1, post )
+      | Print (a)       ->
+        genc( pre, c1, post )
+      | Test (info, b)  ->
+        let middle = AAnd ( assn_of_bexp(b), post ) in
+        genc( pre, c1, middle)
+      | Assign (var, a) ->
+        let la = lexp_of_aexp(a) in
+        let middle = substAssn la var post in
+        genc( pre, c1, middle))
+    | If ( b, c1, c2 )      ->
+      let assnb = assn_of_bexp(b) in   
+      genc(AAnd( assnb, pre ), c1, post) @ genc(AAnd ( ANot(assnb), pre ), c2, post)
     |_ -> failwith "Godel"
