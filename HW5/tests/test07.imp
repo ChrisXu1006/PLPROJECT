@@ -1,3 +1,8 @@
-@ y = 0 @
-x := 2
-@ x = 2 @
+@forall $n ( $n > 0 ) and (x = $n and y = $m)@
+while ( x > 0 ) do
+@ x + y = $n + $m and x >= 0 @
+{
+if ( x > 0 ) then { x := x - 1 } else { x := 1 };
+y := y + 1
+}
+@ x + y = $m + $n and x = 0 @
