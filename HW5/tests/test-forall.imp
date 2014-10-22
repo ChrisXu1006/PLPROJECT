@@ -5,4 +5,4 @@ while ( x > 0 ) do
   x := x - 1;
   y := y + 1
 }
-@ x + y = $i + $j @
+@ x + y = $i + $j and x = 0 @
