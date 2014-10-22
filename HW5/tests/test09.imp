@@ -1,3 +1,11 @@
-@ x = 1 and y = 1 @
-test x = y
-@ x = 1 or y = 1 @
+@ ( x = $n and y = 0 ) and ( $n > 0 ) @
+while ( x > 0 ) do 
+@ 2*x + y = 2*$n and x >= 0 @
+{
+y := y + 2;
+x := x - 1
+};
+@ x = 0 and y = 2*$n @
+print y;
+x := 1
+@ x = 1 and y = 2*$n @
