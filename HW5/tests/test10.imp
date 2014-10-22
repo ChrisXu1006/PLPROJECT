@@ -1,0 +1,6 @@
+@ x = $m and y = $m @
+test x = y;
+skip;
+x := 1;
+print y
+@ x = 1 and y = $m @
