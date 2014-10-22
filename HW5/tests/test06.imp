@@ -1,3 +1,10 @@
-@ true @
-skip
-@ true @
+@ ($i > 0 and $j > 0) and (x = $i and y = $j) @
+while ( x > 0 ) do
+@ x >= 0 and y = $j@
+{
+  x := x - 1;
+  skip;
+  y := y*1;
+  test y = y
+}
+@ x = 0 and y = $j @
