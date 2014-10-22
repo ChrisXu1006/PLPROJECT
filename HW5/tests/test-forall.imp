@@ -1,4 +1,4 @@
-@ forall $i ($i < 0) and (x = $i and y = $j) @
+@ forall $i ($i < 0 and x = $i and y = $j) @
 while ( x > 0 ) do
 @ x + y = $i + $j and x >= 0 @
 {
