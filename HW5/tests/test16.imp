@@ -1,3 +1,7 @@
-@ x = 10 @
-x := 11
-@ x = 10 @
+@ true @
+x := 12;
+y := 43;
+@ (x = 12 and y = 43) and exists $i ( $i = x ) @
+if ( x - y < 0 ) then { y := x } else { x := y };
+test x = y
+@ x = y and exists $m ( $m = x and $m = y ) @ 
