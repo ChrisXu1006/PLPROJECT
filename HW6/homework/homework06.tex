@@ -33,6 +33,17 @@ v & ::= & \lam{x}{e}
 \]
 Define a large-step semantics for this language under call-by-name
 (lazy) evaluation.
+\newline
+\newline
+\textbf{Answer:}
+\begin{center}
+\infrule
+{}{\lam{x}{e} \stepsto \lam{x}{e}}{}
+\qquad
+\infrule
+{e_1 \stepsto \lam{x}{e} \quad e[e_2/x] \stepsto \lam{x}{e'}}{e_1 e_2 \stepsto \lam{x}{e'}}{}
+\end{center}
+
 \end{exercise}
 
 \begin{exercise}
@@ -72,6 +83,19 @@ $E ::= \dots \mid \typ{fix}~E$
 \begin{enumerate}
 \item Give the typing rule for fixpoints.
 \item Give the case of the progress lemma for fixpoints, assuming the proof is by induction on typing derivations.
+\newline
+\newline
+\textbf{Answer:}
+	\begin{itemize}
+		\item T-FIX \newline
+		Here $e \equiv \typ{fix}\ e'$ and $e':\tau \stepsone \tau'$. By the inductive hypothesis, either $e'$ is a value
+		or there is an $e''$ such that $e' \stepsone e''$.
+		\newline
+		If $e'$ is not a value, then by \rulename{Context}, $\typ{fix}\ e' \stepsone \typ{fix}\ e''$. If $e'$ is a
+		value, by inversion, $e'$ must be an abstraction, so $e' \equiv \lam{x\ty\tau}{e^{\ast}}$. 
+		Use the evaluation rule for $\typ{fix}\ e$, we have $\typ{fix}~(\lam{x\ty\tau}{e^{\ast}}) \stepsone
+		 e^{\ast}\{\typ{fix}~(\lam{x\ty\tau}{e^{\ast}}) / x\}$
+	\end{itemize}
 \item Give the case of the preservation lemma for fixpoints, assuming the proof is done by induction on evaluation rules.
 \end{enumerate}
 
