@@ -104,6 +104,13 @@ $E ::= \dots \mid \typ{fix}~E$
 
 \begin{enumerate}
 \item Give the typing rule for fixpoints.
+\newline
+\newline
+\textbf{Answer:}
+\newline
+\begin{center}
+\infrule[T-FIX]{\Gamma \vdash e\ty\tau \stepsone \tau}{\Gamma \vdash fix\ e\ty\tau}{}
+\end{center}
 \item Give the case of the progress lemma for fixpoints, assuming the proof is by induction on typing derivations.
 \newline
 \newline
@@ -119,6 +126,19 @@ $E ::= \dots \mid \typ{fix}~E$
 		 e^{\ast}\{\typ{fix}~(\lam{x\ty\tau}{e^{\ast}}) / x\}$
 	\end{itemize}
 \item Give the case of the preservation lemma for fixpoints, assuming the proof is done by induction on evaluation rules.
+\newline
+\newline
+\textbf{Answer:}
+	\begin{itemize}
+		\item \rulename{Fix} \newline
+		Here $e \equiv \typ{fix}\ (\lam{x\ty\tau}{e^{\ast}})$ and $e' \equiv e^{\ast}\{\typ{fix}\ 
+		(\lam{x\ty\tau}{e^{\ast}})/x\}$. Since $e$ is well typed, we have derivations showing that
+		$\Gamma \vdash \typ{fix}\ (\lam{x\ty\tau}{e^{\ast}})\ty\tau$. There is only one typing rule for fixpoint, 
+		\rulename{T-Fix}, from which we know $\Gamma \vdash \lam{x\ty\tau}{e^{\ast}}\ty\tau \stepsone \tau$.
+		There is only one typing rule for abstractions,
+		\rulename{T-Abs}, from which we know $\Gamma,x\ty\tau \vdash e^{\ast}\ty\tau$. By the substitution lemma,
+		we have $\vdash e^{\ast}\{\typ{fix}\ (\lam{x\ty\tau}{e^{\ast}})/x\}:\tau$ as required. 
+	\end{itemize}
 \end{enumerate}
 
 \end{exercise}
