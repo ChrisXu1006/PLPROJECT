@@ -1,0 +1,95 @@
+\newif\ifbeamer\beamerfalse
+\documentclass[11pt]{article}
+
+\usepackage{../tex/jnf}
+\usepackage{../tex/angle}
+
+\renewcommand{\labelenumi}{\textbf{(\alph{enumi})}}
+\solutiontrue
+\begin{document}
+
+\bigredheader{Homework \#6}
+
+\vspace*{-1.25\bigskipamount}
+
+\paragraph{Due} 
+%
+Wednesday, October 29, 2014 at 11:59pm.
+
+\paragraph{Instructions} 
+%
+This assignment may be completed with one partner.  You and your
+partner should submit a single solution on CMS. Please do not offer or
+accept any other assistance on this assignment. Late submissions will
+not be accepted.
+
+\begin{exercise}
+Recall the syntax of the untyped $\lambda$-calculus. 
+\[
+\begin{array}{rcl}
+e & ::= & x \mid \lam{x}{e} \mid e_1~e_2\\
+v & ::= & \lam{x}{e}
+\end{array}
+\]
+Define a large-step semantics for this language under call-by-name
+(lazy) evaluation.
+\end{exercise}
+
+\begin{exercise}
+In this exercise you will develop encodings in call-by-value untyped
+$\lambda$-calculus.
+\begin{enumerate}
+\item Define an expression $\nm{EQUAL}$ that tests whether two Church numerals 
+  are equal, and returns the corresponding Church boolean.
+\item Define expressions for each of the
+  following list constructs: $\nm{NIL}$, $\nm{CONS}$, $\nm{HD}$,
+  $\nm{TL}$, and $\nm{IS\_NIL}$. To keep things simple, applying
+  either $\nm{HD}$ or $\nm{TL}$ to $\nm{NIL}$ should produce
+  $\nm{NIL}$. Also, if you find it helpful, you may use the encodings
+  of booleans and pairs discussed in class.
+\item Define a function $\nm{SUM}$ that adds up an encoded list of encoded Church
+  numerals.
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}
+The simply-typed $\lambda$-calculus is not Turing complete---as shown
+in lecture, every well-typed expression reduces to a value. It is not
+hard to recover Turing completeness by adding an explicit fixpoint
+operator to the language. We first extend the syntax of the language
+with a new construct,
+\[
+e ::= \dots \mid \typ{fix}~e\\
+\]
+and then add evaluation contexts and a small-step semantics rule to
+handle it:
+\begin{center}
+$E ::= \dots \mid \typ{fix}~E$
+
+\infrule{}{\typ{fix}~(\lam{x\ty\tau}{e}) \stepsone e\{\typ{fix}~(\lam{x\ty\tau}{e}) / x\}}{} 
+\end{center}
+
+\begin{enumerate}
+\item Give the typing rule for fixpoints.
+\item Give the case of the progress lemma for fixpoints, assuming the proof is by induction on typing derivations.
+\item Give the case of the preservation lemma for fixpoints, assuming the proof is done by induction on evaluation rules.
+\end{enumerate}
+
+\end{exercise}
+
+
+
+\begin{debriefing} \hfill\\[-4ex]
+\begin{enumerate*}
+\item How many hours did you spend on this assignment? 
+\item Would you rate it as easy, moderate, or difficult? 
+\item Did everyone in your study group participate? 
+\item How deeply do you feel you understand the material it covers (0\%--100\%)? 
+\item If you have any other comments, we would like to hear them!
+  Please write them here or send email to
+  \mtt{jnfoster@cs.cornell.edu}.
+\end{enumerate*}
+\end{debriefing}
+
+\end{document}
+
