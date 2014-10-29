@@ -55,9 +55,15 @@ $\lambda$-calculus.
 
 \noindent \textbf{Answer:}
 \begin{center}
-	$\nm{MINUS} \ \ x \ \ y \triangleq ( x \ \ \nm{PRED}) \ \ y$\\
-	$\nm{LEQ} \ \ x \ \ y \triangleq \lam{x}{\lam{y}{\nm{ISZERO} \ \ (\nm{MINUS} \ \ x \ \ y)}}$
-	$\nm{EQUAL} \ \ x \ \ y \triangleq \lam{x}{\lam{y}{\nm{AND} \ \ (\nm{LEQ} \ \ x \ \ y) \ \ (\nm{LEQ} \ \ y \ \ x)}}$
+	$\nm{MINUS} \triangleq \lam{x}{\lam{y}{x \ \ \nm{PRED} \ \ y}}$\\
+\end{center}
+\noindent Actually, Church Numerals can only encode natural numbers. Consequently, when we apply $\nm{ISZERO}$ operator for $\nm{MINUS} \ \ m \ \ n$ where m is less or equal to n, the result will always be \nm{TRUE}. So we get the definition of $\nm{LEQ}$ as following:
+\begin{center}
+	$\nm{LEQ} \ \triangleq \lam{x}{\lam{y}{\nm{ISZERO} \ \ (\nm{MINUS} \ \ x \ \ y)}}$\\
+\end{center}
+\noindent Making use of the fact that $x \leq y \ and \ y \leq x$ implies $x = y$, we can obtain the definition of \nm{EQUAL}:
+\begin{center}
+	$\nm{EQUAL} \triangleq \lam{x}{\lam{y}{\nm{AND} \ \ (\nm{LEQ} \ \ x \ \ y) \ \ (\nm{LEQ} \ \ y \ \ x)}}$
 \end{center}
 \item Define expressions for each of the
   following list constructs: $\nm{NIL}$, $\nm{CONS}$, $\nm{HD}$,
@@ -79,7 +85,7 @@ $\lambda$-calculus.
 
 \noindent \textbf{Answer:}
 \begin{center}
-	$\nm{SUM'} \triangleq \lam{f}\lam{L}{\nm{PLUS}~(\nm{HD}~L)~(f~f~(\nm{TL}~L))}$\\
+	$\nm{SUM'} \triangleq \lam{f}\lam{L}{\nm{IF}~(\nm{IS\_NIL}~L)~0~(\nm{PLUS}~(\nm{HD}~L)~(f~f~(\nm{TL}~L)))}$\\
 	$\nm{SUM} \triangleq \nm{SUM'}~\nm{SUM'}$
 \end{center}
 \end{enumerate}
@@ -117,7 +123,7 @@ $E ::= \dots \mid \typ{fix}~E$
 \textbf{Answer:}
 	\begin{itemize}
 		\item T-FIX \newline
-		Here $e \equiv \typ{fix}\ e'$ and $e':\tau \stepsone \tau$. By the inductive hypothesis, either $e'$ is a value
+		Here $e \equiv \typ{fix}\ e'$ and $e':\tau \stepsone \tau'$. By the inductive hypothesis, either $e'$ is a value
 		or there is an $e''$ such that $e' \stepsone e''$.
 		\newline
 		If $e'$ is not a value, then by \rulename{Context}, $\typ{fix}\ e' \stepsone \typ{fix}\ e''$. If $e'$ is a
