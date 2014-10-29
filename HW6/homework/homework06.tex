@@ -51,15 +51,37 @@ In this exercise you will develop encodings in call-by-value untyped
 $\lambda$-calculus.
 \begin{enumerate}
 \item Define an expression $\nm{EQUAL}$ that tests whether two Church numerals 
-  are equal, and returns the corresponding Church boolean.
+  are equal, and returns the corresponding Church boolean.\\
+
+\noindent \textbf{Answer:}
+\begin{center}
+	$\nm{MINUS} \ \ x \ \ y \triangleq ( x \ \ \nm{PRED}) \ \ y$\\
+	$\nm{LEQ} \ \ x \ \ y \triangleq \lam{x}{\lam{y}{\nm{ISZERO} \ \ (\nm{MINUS} \ \ x \ \ y)}}$
+	$\nm{EQUAL} \ \ x \ \ y \triangleq \lam{x}{\lam{y}{\nm{AND} \ \ (\nm{LEQ} \ \ x \ \ y) \ \ (\nm{LEQ} \ \ y \ \ x)}}$
+\end{center}
 \item Define expressions for each of the
   following list constructs: $\nm{NIL}$, $\nm{CONS}$, $\nm{HD}$,
   $\nm{TL}$, and $\nm{IS\_NIL}$. To keep things simple, applying
   either $\nm{HD}$ or $\nm{TL}$ to $\nm{NIL}$ should produce
   $\nm{NIL}$. Also, if you find it helpful, you may use the encodings
-  of booleans and pairs discussed in class.
+  of booleans and pairs discussed in class.\\
+
+\noindent \textbf{Answer:}
+\begin{center}
+	$\nm{NIL} = \lam{L}{\nm{TRUE}}$\\
+	$\nm{CONS} = \lam{H}{\lam{T}{(\lam{L}{L~H~T})}}$\\
+	$\nm{HD} = \lam{L}{\nm{IF}~(\nm{IS\_NIL}~L)~L~(L~\nm{TRUE})}$\\
+	$\nm{TL} = \lam{L}{\nm{IF}~(\nm{IS\_NIL}~L)~L~(L~\nm{FALSE})}$\\
+	$\nm{IS\_NIL} = \lam{L}{L(\lam{H}{\lam{T}{\nm{FALSE}}})}$
+\end{center}
 \item Define a function $\nm{SUM}$ that adds up an encoded list of encoded Church
-  numerals.
+  numerals.\\
+
+\noindent \textbf{Answer:}
+\begin{center}
+	$\nm{SUM'} \triangleq \lam{f}\lam{L}{\nm{PLUS}~(\nm{HD}~L)~(f~f~(\nm{TL}~L))}$\\
+	$\nm{SUM} \triangleq \nm{SUM'}~\nm{SUM'}$
+\end{center}
 \end{enumerate}
 \end{exercise}
 
@@ -105,10 +127,14 @@ $E ::= \dots \mid \typ{fix}~E$
 
 \begin{debriefing} \hfill\\[-4ex]
 \begin{enumerate*}
-\item How many hours did you spend on this assignment? 
-\item Would you rate it as easy, moderate, or difficult? 
-\item Did everyone in your study group participate? 
-\item How deeply do you feel you understand the material it covers (0\%--100\%)? 
+\item How many hours did you spend on this assignment?\\[0.5mm]
+\noindent \textbf{Answer:} 10 hours
+\item Would you rate it as easy, moderate, or difficult?\\[0.5mm]
+\noindent \textbf{Answer:} Difficult
+\item Did everyone in your study group participate?\\[0.5mm]
+\noindent \textbf{Answer:} Yes 
+\item How deeply do you feel you understand the material it covers (0\%--100\%)?\\[0.5mm]
+\noindent \textbf{Answer:} About 80\%
 \item If you have any other comments, we would like to hear them!
   Please write them here or send email to
   \mtt{jnfoster@cs.cornell.edu}.
