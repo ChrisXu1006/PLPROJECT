@@ -91,7 +91,7 @@ and print_cps_atom a =
       | CFst(x) -> print_fst print_ident x
       | CSnd(x) -> print_snd print_ident x
       | CTrue -> print_ident "true"
-      | CFalse -> print_ident "true"
+      | CFalse -> print_ident "false"
       | CEq(x,y) -> print_binop print_ident "=" x y
       | CIf(x,y,z) -> print_if print_ident x y z in 
   Format.printf "@[";
@@ -109,11 +109,11 @@ let print_val v =
       | VClosure(_) -> 
         Format.printf "<fun>"
       | VPair(v1,v2) -> 
-        Format.printf "@[(<2>"; 
+        Format.printf "@[<2>("; 
         loop v1;
         Format.printf ",@ ";
         loop v2;
-        Format.printf "@]"
+        Format.printf ")@]"
       | VTrue -> 
         Format.printf "true"
       | VFalse -> 
