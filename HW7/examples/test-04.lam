@@ -1,0 +1,2 @@
+let y = 2 + 3 in
+(lambda x. x + y)2
