@@ -1,17 +1,22 @@
 open Ast
+open Pprint
 
-exception IllformedExpression 
+exception IllformedExpression1
+exception IllformedExpression2
 
 (* evaluate CPS expression e in environment g *)
 let rec eval (g:cps_env) (c:cps_exp) : cps_val = 
   match c with
-  | CApp(CAtom(e1), e2) ->
-    (match e1 with
-     | CLam(x, ce) -> eval (extend g x (eval_atom g e2)) ce
-     | _ -> raise IllformedExpression
-    ) 
-  | CAtom(c)        -> eval_atom g c 
-  | _ ->failwith "Adriaan van Wijngaarden"
+  | CApp(e1, e2) ->
+      let v1 = eval g e1 in
+      (
+        match v1 with 
+        | VClosure(g1, x, ce) ->
+            let v2 = eval_atom g e2 in 
+                eval (extend g1 x v2 ) ce
+        | _ -> raise IllformedExpression1
+      )
+  | CAtom(c)     -> eval_atom g c 
 
 (* evaluate CPS atom a in environment g *) 
 and eval_atom (g:cps_env) (a:cps_atom) : cps_val = 
@@ -34,3 +39,4 @@ and eval_atom (g:cps_env) (a:cps_atom) : cps_val =
     | CEq(v1, v2)   -> if (lookup g v1) = (lookup g v2) then VTrue else VFalse
     | CIf(b, v1, v2)-> if (lookup g b) = VTrue then lookup g v1 else lookup g v2
     | _ -> failwith "F. Lockwood Morris"
+
