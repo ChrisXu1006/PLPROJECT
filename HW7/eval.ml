@@ -1,8 +1,7 @@
 open Ast
 open Pprint
 
-exception IllformedExpression1
-exception IllformedExpression2
+exception IllformedExpression
 
 (* evaluate CPS expression e in environment g *)
 let rec eval (g:cps_env) (c:cps_exp) : cps_val = 
@@ -14,7 +13,7 @@ let rec eval (g:cps_env) (c:cps_exp) : cps_val =
         | VClosure(g1, x, ce) ->
             let v2 = eval_atom g e2 in 
                 eval (extend g1 x v2 ) ce
-        | _ -> raise IllformedExpression1
+        | _ -> raise IllformedExpression
       )
   | CAtom(c)     -> eval_atom g c 
 
@@ -26,17 +25,31 @@ and eval_atom (g:cps_env) (a:cps_atom) : cps_val =
     | CUnit         -> VUnit
     | CInt(n)       -> VInt(n)
     | CPlus(v1,v2)  ->
-        let VInt(n) = lookup g v1 in 
-            let VInt(m) = lookup g v2 in
-                VInt(n+m)
+        let n = lookup g v1 in 
+            ( match n with
+              | VInt(n1) ->
+                let m = lookup g v2 in
+                ( match m with
+                  | VInt(m1) -> VInt(n1+m1)
+                  | _ -> raise IllformedExpression
+                )
+              | _ -> raise IllformedExpression
+            )
     | CPair(v1,v2)  -> VPair((lookup g v1),(lookup g v2))
     | CFst(pair)    -> 
-        let VPair(v1, v2) = lookup g pair in v1
+        let v = lookup g pair in
+        ( match v with
+          | VPair(v1, v2) -> v1
+          | _ -> raise IllformedExpression
+        )
     | CSnd(pair)    ->
-        let VPair(v1, v2) = lookup g pair in v2
+        let v = lookup g pair in
+        ( match v with
+          | VPair(v1, v2) -> v2
+          | _ -> raise IllformedExpression
+        )
     | CTrue         -> VTrue
     | CFalse        -> VFalse
     | CEq(v1, v2)   -> if (lookup g v1) = (lookup g v2) then VTrue else VFalse
     | CIf(b, v1, v2)-> if (lookup g b) = VTrue then lookup g v1 else lookup g v2
-    | _ -> failwith "F. Lockwood Morris"
 
