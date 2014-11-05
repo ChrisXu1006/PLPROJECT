@@ -41,7 +41,7 @@ let rec cps (e:exp) (k:cps_atom) : cps_exp =
         let n = fresh "n" (VarSet.union (fvs_exp e2) (fvs_cps_atom k)) in
             let m = fresh "m" (fvs_cps_atom k) in
                 let k0 = CLam(n, (cps e2 (CLam(m, CApp(CAtom(k), CEq(n,m)))))) in
-                    cps e k0
+                    cps e1 k0
     | If(e1, e2, e3)->
         let b = fresh "b" (VarSet.union (VarSet.union (fvs_exp e2) (fvs_exp e3)) (fvs_cps_atom k)) in
             let c = fresh "c" (VarSet.union (fvs_exp e3) (fvs_cps_atom k)) in
