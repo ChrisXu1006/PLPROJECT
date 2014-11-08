@@ -1,0 +1,341 @@
+\usepackage{url}
+\usepackage{mdwlist}
+
+\newif\ifsolution\solutionfalse
+
+% Flag for fancy fonts
+\newif\ifjnf\jnffalse
+\makeatletter \@input{config} \makeatother
+
+\usepackage{alltt}
+
+\ifbeamer\else
+
+\ifjnf
+\usepackage[no-math]{fontspec}
+\defaultfontfeatures{Scale=MatchLowercase,Mapping=tex-text}
+\setmainfont{Palatino LT Std}
+\setsansfont{Frutiger LT Std}
+%\setmonofont{Consolas}
+\else
+\usepackage{palatino}
+\fi
+
+\usepackage{tikz}
+\usepgflibrary{plotmarks}
+\usetikzlibrary{arrows}
+\usetikzlibrary{fit}
+\usetikzlibrary{positioning}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{shadows}
+\usetikzlibrary{matrix}
+\usetikzlibrary{calc}
+
+\usepackage{fullpage}
+\usepackage{cmtt}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{../tex/src2tex}
+\usepackage{../tex/mathpartir}
+
+\fi
+
+\definecolor{cornellred}{cmyk}{0,1,.79,.20}
+
+%
+\newenvironment{jnfitemize}{\begin{itemize*}}{\end{itemize*}}
+\newenvironment{jnfdescription}{\begin{description*}}{\end{description*}}
+
+% MACROS
+\newcommand{\hdr}[1]{\textbf{\textsf{\Large\textcolor{cornellred}{#1}}}}
+\newcommand{\bigredheader}[1]{%
+\noindent
+\begin{tikzpicture}
+\node (TXT) at (-5.75,1) {
+\begin{tabular}{l}
+\hdr{CS 4110 -- Programming Languages and Logics}\\[.5ex]
+\hdr{#1}
+\end{tabular}
+};
+\node[scale=.5] (CU) at (3.4,1) {\pgfimage[width=3.45cm]{../pdf/cornell}};
+\begin{pgfonlayer}{background}
+\node[fit=(TXT) (CU)] (BCK) {};
+\draw[color=cornellred, line width=2pt, rounded corners=4pt] (BCK.north west) rectangle (BCK.south east);
+\end{pgfonlayer}
+\end{tikzpicture}
+}
+
+\newcommand{\materialsack}{%
+\null\hfill\textsf{\tiny{Based on material by Stephen Chong, Greg Morrisett, Andrew Myers, George Necula, and Radu Rugina}}
+}
+
+\setlength{\itemsep}{0pt}
+\setlength{\itemindent}{20pt}
+
+\newcommand{\defeq}{\ensuremath{\triangleq}}
+\newcommand{\kleenestar}{\!\raisebox{.75ex}{\ensuremath{\ast}}}
+\newcommand{\Set}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\CONFIG}[2]{\ensuremath{\langle #1, #2 \rangle}}
+\newcommand{\var}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\VAR}[1]{\ensuremath{\mathit{#1}}}
+\newcommand{\LIT}[1]{\ensuremath{#1}}
+\newcommand{\PLUSSYM}{\ensuremath{\text{\mtt{+}}}}
+\newcommand{\PLUS}[2]{#1 \,\PLUSSYM\, #2}
+\newcommand{\TIMESSYM}{\ensuremath{\text{\mtt{*}}}}
+\newcommand{\TIMES}[2]{#1 \,\TIMESSYM\, #2}
+\newcommand{\DIVSYM}{\ensuremath{\text{\mtt{/}}}}
+\newcommand{\DIV}[2]{#1 \; \DIVSYM \; #2}
+\newcommand{\ASSGNSYM}{\ensuremath{\text{\mtt{:=}}}}
+\newcommand{\ASSGN}[3]{#1 \,\ASSGNSYM\, #2\, ;\, #3}
+\newcommand{\assgn}[2]{#1 \,\ASSGNSYM\, #2}
+\newcommand{\fvsym}{\ensuremath{\mathit{fvs}}}
+\newcommand{\fv}[1]{\ensuremath{\fvsym(#1)}}
+\newcommand{\dom}[1]{\mathit{dom}(#1)}
+\newcommand{\stepsone}{\ensuremath{\rightarrow}}
+\newcommand{\stepsto}{\ensuremath{\Downarrow}}
+\newcommand{\steps}{\ensuremath{\stepsone\kleenestar}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+
+\newcommand{\chnum}[1]{\ensuremath{\overline{#1}}}
+
+% theorems, lemmas, etc.
+\ifbeamer\else
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem*{theorem*}{Theorem}
+\newtheorem{property}{Property}
+\newtheorem{lemma}{Lemma}
+\newtheorem*{lemma*}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{example}{Example}
+\newtheorem*{example*}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem*{definition*}{Definition}
+
+\newcounter{theexercise}
+\setcounter{theexercise}{1}
+\newenvironment{exercise}
+  {\paragraph{Exercise \arabic{theexercise}.}}
+  {\addtocounter{theexercise}{1}}
+
+\newcounter{thequestion}
+\setcounter{thequestion}{1}
+\newenvironment{question}
+  {\paragraph{Question \arabic{thequestion}}}
+  {\addtocounter{thequestion}{1}}
+
+\newenvironment{debriefing}
+  {\paragraph{Debriefing}}
+  {}
+
+\newcommand{\solution}[1]{%
+\ifsolution
+\begin{center}
+\fbox{\begin{minipage}{.8\textwidth}
+\paragraph{Solution:}
+#1
+\end{minipage}}
+\end{center}
+\fi
+}
+
+\fi
+
+\makeatletter
+  \newcommand{\addToLabel}[1]{%
+    \protected@edef\@currentlabel{\@currentlabel#1}%
+  }
+\makeatother
+
+\newcounter{rule}
+\renewcommand{\therule}{}
+\newcommand{\rulename}[1]{{\textsc{#1}}}
+
+\newcommand{\infrule}[4][]{%
+  \ensuremath{
+  \refstepcounter{rule}%
+  \addToLabel{\rulename{#1}}%
+   \raisebox{1.7ex}{\rulename{#1}\:}
+\begin{array}[b]{@{}l@{}}%
+   \begin{array}[b]{c}
+   #2\raisebox{0ex}[2.1ex][1.1ex]{\strut}\\
+   \hline
+   \raisebox{0ex}[2.1ex]{\strut}#3%
+   \end{array}%
+   \raisebox{1.7ex}{\:#4}
+  \end{array}}}
+\newcommand{\elidedprooftree}[1][]{\ensuremath{\vdots{}^{#1}}}
+\newcommand{\derives}{\Vdash}
+
+\newcommand\impfnt[1]{\ensuremath{\text{\textsf{\textbf{#1}}}}}
+\newcommand{\IN}[1][\impfnt]{#1{in}}
+\newcommand{\LET}[1][\impfnt]{#1{let}}
+\newcommand{\REC}[1][\impfnt]{#1{rec}}
+\newcommand{\IF}[1][\impfnt]{#1{if}}
+\newcommand{\THEN}[1][\impfnt]{#1{then}}
+\newcommand{\ELSE}[1][\impfnt]{#1{else}}
+\newcommand{\SKIP}{\impfnt{skip}}
+\newcommand{\WHILE}[1][\impfnt]{\impfnt{while}}
+\newcommand{\DO}[1][\impfnt]{\impfnt{do}}
+\newcommand{\BREAK}{\impfnt{break}}
+\newcommand{\CONTINUE}{\impfnt{continue}}
+\newcommand{\UNTIL}[1][\impfnt]{#1{until}}
+\newcommand{\TRUE}{\impfnt{true}}
+\newcommand{\FALSE}{\impfnt{false}}
+\newcommand{\FOR}{\impfnt{for}}
+\newcommand{\TO}{\impfnt{to}}
+\newcommand{\NOT}{\impfnt{not}}
+\newcommand{\AND}{\impfnt{and}}
+\newcommand{\OR}{\impfnt{or}}
+\newcommand{\cond}[4][\impfnt]{\ensuremath{\IF[#1]~#2~\THEN[#1]~#3~\ELSE[#1]~#4}}
+\newcommand{\while}[3][\impfnt]{\ensuremath{\WHILE[#1]~#2~\DO[#1]~#3}}
+\newcommand{\until}[3][\impfnt]{\ensuremath{\DO[#1]~#2~\UNTIL[#1]~#3}}
+\newcommand{\for}[2]{\ensuremath{\FOR~#1~#2}}
+\newcommand{\code}[1]{\ensuremath{\mathsf{#1}}}
+
+\newcommand\FV[1]{\nm{FV}(#1)}
+\newcommand\SB[1]{[\![#1]\!]}
+\newenvironment{SBE}{\left[\!\!\!\!\left[\begin{array}{c}}%
+{\end{array}\right]\!\!\!\!\right]}
+\newcommand\bigSB[1]{\begin{SBE}#1\end{SBE}}
+\newcommand\Tr[2]{\ensuremath{{\cal #1}\SB{#2}}}
+\newcommand\Cr[1]{{\cal C}\SB{#1}\rho}
+\newcommand\mathif[3]{\mathit{if}~#1~\mathit{then}~#2~\mathit{else}~#3}
+\newcommand\ini[1]{\nm{in}_{\mbox{\scriptsize{#1}}}}
+\newcommand\inj[2]{\nm{in}_{\mbox{\scriptsize\nm{#1}$\leftarrow$\nm{#2}}}}
+\newcommand\nm[1]{\ensuremath{\mathsf{#1}}}
+\newcommand\lm[3]{\lambda#1\in#2\,.\,#3}
+\newcommand\fnm[1]{\fbox{\sl #1}\,}
+\newcommand{\Te}[1]{\ensuremath{\mathcal{T}\SB{#1}}} 
+\newcommand\join{\ensuremath\bigsqcup}
+\newcommand\dq[1]{\mbox{``}#1\mbox{''}}
+\newcommand\sidecond[1]{\qquad\mbox{(#1)}}
+\newcommand\lift[1]{\ensuremath{\lfloor #1 \rfloor}}
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand\mquote[1]{\textrm{``}#1\textrm{''}}
+\newcommand{\partialfn}{\rightharpoonup}
+
+\newcommand{\hrtrp}[4][~]{\{ #2 \}{#1}#3{#1}\{ #4 \}}
+\newcommand{\wpre}[2]{\mathit{wlp}(#1,#2)}
+
+\newcommand\lam[2]{\ensuremath{\lambda#1.\,#2}}
+\newcommand\subst[3]{{\ensuremath #1\{#2/#3\}}}
+\newcommand{\lamfnt}[1]{\ensuremath{\mathsf{#1}}}
+\newcommand{\hole}{\ensuremath{[\cdot]}}
+\newcommand{\inl}{\ensuremath{\lamfnt{in}_\lamfnt{left}~}}
+\newcommand{\inr}{\ensuremath{\lamfnt{in}_\lamfnt{right}~}}
+\newcommand{\case}[3]{\ensuremath{\lamfnt{case}~#1~\lamfnt{of}~#2|#3}}
+\newcommand{\letexp}[3]{\ensuremath{\lamfnt{let}~#1=#2~\lamfnt{in}~#3}}
+
+\newcommand{\alloc}[1]{\lamfnt{ref}~#1}
+\newcommand{\refty}[1]{#1~\typ{ref}}
+\newcommand{\deref}[1]{\;!#1}
+
+
+\newcommand{\Lam}[2]{\ensuremath{\Lambda#1.\,#2}}
+\newcommand{\arrow}{\ensuremath\rightarrow}
+\newcommand{\typ}[1]{\lamfnt{\textbf{#1}}}
+\newcommand{\ty}{\ensuremath{\!:\!}}
+\newcommand{\subty}{\ensuremath{\leq}}
+\newcommand{\proves}{\ensuremath{\vdash}}
+\newcommand{\inleft}[3]{\ensuremath{\lamfnt{inl}_{#1 + #2}\:#3}}
+\newcommand{\inright}[3]{\ensuremath{\lamfnt{inr}_{#1 + #2}\:#3}}
+\newcommand{\sumcase}[3]{\ensuremath{\lamfnt{case}\:#1\:\lamfnt{of}\:#2 \mid #3}}
+\newcommand{\unit}{\ensuremath{()}}
+
+\newcommand{\cps}[1]{\Tr{CPS}{#1}}
+
+\newcommand{\sbs}{\ensuremath\sigma} 
+\newcommand{\unify}{\ensuremath\mathit{unify}}
+
+\newcommand{\exvalshort}[2]{\{#1, #2\}} 
+\newcommand{\exval}[3]{\lamfnt{pack}~\{#1, #2\}~\lamfnt{as}~{#3}} 
+\newcommand{\unpack}[4]{\lamfnt{unpack}\;{\{#1, #2\}}={#3}\;\lamfnt{in}\;{#4}}
+
+\tikzset{
+    to*/.style={
+        shorten >=.25em,#1-to,
+        to path={-- node[inner sep=0pt,at end,sloped] {${}^*$} (\tikztotarget) \tikztonodes}
+    },
+    to*/.default=
+}
+
+\makeatletter
+\pgfarrowsdeclare{to*}{to*}
+{
+  \pgfutil@tempdima=-0.84pt%
+  \advance\pgfutil@tempdima by-1.3\pgflinewidth%
+  \pgfutil@tempdimb=0.21pt%
+  \advance\pgfutil@tempdimb by.625\pgflinewidth%
+  \advance\pgfutil@tempdimb by2.5pt%
+  \pgfarrowsleftextend{+\pgfutil@tempdima}
+  \pgfarrowsrightextend{+\pgfutil@tempdimb}
+}
+{
+  \pgfutil@tempdima=0.28pt%
+  \advance\pgfutil@tempdima by.3\pgflinewidth%
+  \pgfsetlinewidth{0.8\pgflinewidth}
+  \pgfsetdash{}{+0pt}
+  \pgfsetroundcap
+  \pgfsetroundjoin
+  \pgfpathmoveto{\pgfqpoint{-3\pgfutil@tempdima}{4\pgfutil@tempdima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-2.75\pgfutil@tempdima}{2.5\pgfutil@tempdima}}
+  {\pgfqpoint{0pt}{0.25\pgfutil@tempdima}}
+  {\pgfqpoint{0.75\pgfutil@tempdima}{0pt}}
+  \pgfpathcurveto
+  {\pgfqpoint{0pt}{-0.25\pgfutil@tempdima}}
+  {\pgfqpoint{-2.75\pgfutil@tempdima}{-2.5\pgfutil@tempdima}}
+  {\pgfqpoint{-3\pgfutil@tempdima}{-4\pgfutil@tempdima}}
+  \pgfusepathqstroke
+  \begingroup
+    \pgftransformxshift{2.5pt}
+    \pgftransformyshift{2pt}
+    \pgftransformscale{.7}
+    \pgfuseplotmark{asterisk}
+  \endgroup
+%  \pgftext[left,y=2pt]{$\scriptstyle *$}
+}
+
+\pgfarrowsdeclare{*to}{*to}
+{
+  \pgfutil@tempdima=-0.84pt%
+  \advance\pgfutil@tempdima by-1.3\pgflinewidth%
+  \pgfutil@tempdimb=0.21pt%
+  \advance\pgfutil@tempdimb by.625\pgflinewidth%
+  \advance\pgfutil@tempdimb by2.5pt%
+  \pgfarrowsleftextend{+\pgfutil@tempdima}
+  \pgfarrowsrightextend{+\pgfutil@tempdimb}
+}
+{
+  \pgfutil@tempdima=0.28pt%
+  \advance\pgfutil@tempdima by.3\pgflinewidth%
+  \pgfsetlinewidth{0.8\pgflinewidth}
+  \pgfsetdash{}{+0pt}
+  \pgfsetroundcap
+  \pgfsetroundjoin
+  \pgfpathmoveto{\pgfqpoint{-3\pgfutil@tempdima}{4\pgfutil@tempdima}}
+  \pgfpathcurveto
+  {\pgfqpoint{-2.75\pgfutil@tempdima}{2.5\pgfutil@tempdima}}
+  {\pgfqpoint{0pt}{0.25\pgfutil@tempdima}}
+  {\pgfqpoint{0.75\pgfutil@tempdima}{0pt}}
+  \pgfpathcurveto
+  {\pgfqpoint{0pt}{-0.25\pgfutil@tempdima}}
+  {\pgfqpoint{-2.75\pgfutil@tempdima}{-2.5\pgfutil@tempdima}}
+  {\pgfqpoint{-3\pgfutil@tempdima}{-4\pgfutil@tempdima}}
+  \pgfusepathqstroke
+  \begingroup
+    \pgftransformxshift{2.5pt}
+    \pgftransformyshift{-2pt}
+    \pgftransformscale{.7}
+    \pgfuseplotmark{asterisk}
+  \endgroup
+}
+
+\makeatother
+

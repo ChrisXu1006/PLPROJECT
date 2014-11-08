@@ -1,0 +1,153 @@
+\newif\ifbeamer\beamerfalse
+\documentclass[10pt]{article}
+
+\usepackage{../tex/jnf}
+\usepackage{alltt}
+
+\renewcommand{\labelenumi}{\textbf{(\alph{enumi})}}
+
+\begin{document}
+
+\bigredheader{Homework \#8}
+
+\paragraph{Due} Wedneday, November 12, 2014 by 11:59pm 
+
+\paragraph{Instructions} 
+This assignment may be completed with one partner.  You and your
+partner should submit a single solution on CMS. Please do not offer or
+accept any other assistance on this assignment. Late submissions will
+not be accepted.
+
+\begin{exercise}
+\begin{enumerate}
+\item   Suppose that we add a new typing rule to the simply-typed
+  $\lambda$-calculus, extended with integers and unit:
+\begin{center}
+\infrule[T-Funny]
+{}
+{ \Gamma \vdash (\lambda x\!:\!\typ{unit}.~x) : \typ{int} }
+{}
+\end{center} 
+Does progress still hold?  Does preservation still hold? If so,
+explain why (briefly). If not, give a counterexample.
+
+\item Now suppose instead that we add a new evaluation rule to the
+simply-typed $\lambda$-calculus:
+\begin{center}
+\infrule[Funny2]
+{}
+{ e_1 + e_2 \stepsone () }
+{}
+\end{center}
+Does progress still hold?  Does preservation still hold? If so,
+explain why (briefly). If not, give a counterexample.
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}
+  The ``erasure'' of a System F term into a pure $\lambda$-calculus
+  term can be defined as follows:
+%
+\[
+\begin{array}{rcl}
+\mathit{erase}(x) & = & x\\
+\mathit{erase}(\lam{x \ty \tau}{e}) & = & \lam{x}{\mathit{erase}(e)}\\
+\mathit{erase}(e_1~e_2) & = & (\mathit{erase}(e_1)~ \mathit{erase}(e_2))\\
+\mathit{erase}(\Lam{X}{e}) & = & \lam{z}{\mathit{erase}(e)}~\qquad \text{where}~z~\text{fresh}\\
+\mathit{erase}(e~[\tau]) & =& \mathit{erase}(e)~\lam{z}{z}
+\end{array}
+\]
+%
+Prove that if $e \arrow e'$ then
+$\mathit{erase}(e) \Rightarrow \mathit{erase}(e')$ by induction (where
+to avoid any confusion we let ``$\arrow$'' stand for the evaluation
+relation in System F and ``$\Rightarrow$'' stand for the evaluation
+relation for the pure $\lambda$-calculus). Although this property is
+``obvious,'' proving it rigorously is still good practice!
+\end{exercise}
+
+\begin{exercise}
+Consider System F extended with integers, booleans, and sums:
+\begin{align*}
+e    &::= x \mid \lam{x\ty\tau}{e} \mid e_1~e_2 \mid \Lam{X}{e} \mid e~[\tau] \mid n \mid e_1 + e_2  \\
+     & \qquad \mid \lamfnt{true}  \mid \lamfnt{false} \mid e_1 = e_2 \mid \cond[\lamfnt]{e_1}{e_2}{e_3}  \\
+     & \qquad \mid \inleft{\tau_1}{\tau_2}{e} \mid \inright{\tau_1}{\tau_2}{e} \mid \sumcase{e_1}{e_2}{e_3}\\
+\tau &::= \typ{int} \mid \typ{bool} \mid \tau_1 \arrow \tau_2 \mid X \mid \forall X.~\tau \mid \tau_1 + \tau_2
+\end{align*}
+%
+Two expressions $e_1$ and $e_2$ are said to be \emph{behaviorally
+equivalent} if for any expression $f$, the expression $f~e_1$ behaves
+the same as $f~e_2$. That is, it is impossible for $f$ to distinguish
+$e_1$ from $e_2$. For example, the expressions
+$\lam{x\ty\typ{unit}}{4+9}$ and $\lam{x\ty\typ{unit}}{13}$ are
+behaviorally equivalent, since any function $f$, say
+$\lam{t\ty\typ{unit}\arrow\typ{int}}{29+(t~())}$, behaves exactly the
+same when given either one. However, the expressions
+$\lam{x\ty\typ{int}}{0}$ and
+$\lam{x\ty\typ{int}}{\cond[\lamfnt]{x=42}{1}{0}}$ are not behaviorally
+equivalent because the expression
+$\lam{y\ty{\typ{int}\arrow\typ{int}}}{y~42}$ distinguishes them.
+
+For each of the following types, list the behaviorally \emph{distinct}
+expressions of that type. That is, any expression that has that type
+should be behaviorally equivalent to one of the expressions in your
+list.  (Recall that all System F expressions terminate so you do not
+need to consider non-termination as a possible behavior.)
+%
+\begin{enumerate}
+\begin{minipage}{.5\textwidth}
+\item $\forall A.~ A \rightarrow A$\\
+\item $\forall A.~ A \rightarrow A \rightarrow A$\\
+\item $\forall A.~\forall B.~ A \rightarrow (A \rightarrow B) \rightarrow B$\\
+\item $\forall A.~\forall B.~ A \rightarrow B \rightarrow A + B$\\
+\end{minipage}\begin{minipage}{.5\textwidth}
+\item $\forall A.~ A$\\
+\item $\forall A.~ A \rightarrow \typ{bool} \rightarrow A$\\
+\item $\forall A.~ A \rightarrow A \rightarrow \typ{bool} \rightarrow A$\\
+\bigskip\bigskip
+\end{minipage}
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}
+  For each of the following, write ``Yes'' if it is okay to allow
+  these types to be in the subtype relation or ``No'' if not. In
+  addition, if your answer is ``No'' give a counterexample that shows
+  how type soundness would break.
+\begin{itemize}
+\item $\typ{int} \subty \typ{unit}$
+\item $\{ l : \top \} \subty \{ l : \typ{bool} \}$
+\item $\{ \} \subty \{ x : \top \}$ 
+\item $(\top \times \{ x \ty \typ{unit} \}) \subty (\{\} \times \top)$
+\item $(\{ x \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int})$
+\item $(\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int} \} \arrow \typ{int})$
+\end{itemize}
+\end{exercise}
+
+\begin{exercise}
+  Consider the simply-typed $\lambda$-calculus with records and
+  subtyping.
+%
+\[
+\begin{array}{rcl}
+\tau & ::= & \{ l_1 \ty \tau_1, \dots, l_n \ty \tau_n \} \mid \tau_1 \arrow \tau_2\\
+e    & ::= & x \mid e_1~e_2 \mid \lambda x \ty\tau .~ e \mid \{ l_1 = e_1 , \dots, l_n = e_n \} \mid e.l\\
+\end{array}
+\]
+%
+Prove progress and preservation. 
+\end{exercise}
+
+\begin{debriefing} \hfill\\[-4ex]
+\begin{enumerate*}
+\item How many hours did you spend on this assignment? 
+\item Would you rate it as easy, moderate, or difficult? 
+\item Did everyone in your study group participate? 
+\item How deeply do you feel you understand the material it covers (0\%--100\%)? 
+\item If you have any other comments, we would like to hear them!
+  Please send email to \texttt{jnfoster@cs.cornell.edu}.
+\end{enumerate*}
+\end{debriefing}
+
+\end{document}
+
