@@ -1,0 +1,300 @@
+\newif\ifbeamer\beamerfalse 
+
+\documentclass[11pt]{article}
+
+\usepackage{../tex/jnf}
+\usepackage{../tex/angle}
+
+\renewcommand{\labelenumi}{\textbf{(\alph{enumi})}}
+\solutionfalse
+\begin{document}
+
+\bigredheader{Homework \#4}
+
+\vspace*{-1.25\bigskipamount}
+
+\paragraph{By} \textbf{Rui Xu(rx37), Yao Wang(yw438)}
+
+\paragraph{Instructions} This assignment may be completed with one partner. 
+You and your partner should submit a single solution on CMS. Please do
+not offer or accept any other assistance on this assignment. Late
+submissions will not be accepted.
+
+\begin{exercise}
+\begin{enumerate}
+\item Extend the denotational semantics of IMP to handle the following
+  commands:
+%
+\[
+c ::= \dots \mid \IF~b~\THEN~c \mid \until{c}{b}
+\]
+%
+Operationally, these commands behave as follows. A one-armed
+conditional $(\IF~b~\THEN~c)$ executes the body $c$ only if $b$
+evaluates to $\TRUE$, whereas a \impfnt{do}-\impfnt{until} loop
+$(\until{c}{b})$ executes $c$ one or more times until $b$ becomes
+$\TRUE$.
+\begin{tabbing}
+\textbf{Answer:} $C[\![\IF~b~\THEN~c]\!]$ \= $=$ \= $\{(\sigma, \sigma) \ | \ (\sigma, false) \in B[\![b]\!]\}$ \ $\cup$ \\
+ \> \> $\{(\sigma, \sigma') \ | \ (\sigma, true) \in B[\![b]\!] \wedge (\sigma, \sigma') \in C[\![c]\!] \}$\\
+\quad\quad\quad \ \  $C[\![\until{c}{b}]\!]$ \> $=$ \> $fix(F)$\\
+\quad\quad\quad\quad\quad where $F(f)$ \> $=$ \> $\{(\sigma, \sigma') \ | \ (\sigma, \sigma') \in C[\![c]\!] \wedge (\sigma', true) \in B[\![b]\!]\}$\\
+\> \> $\{(\sigma, \sigma'') \ | \exists\sigma'.((\sigma, \sigma') \in C[\![c]\!] \wedge (\sigma', false) \in B[\![b]\!] \wedge (\sigma', \sigma'') \in f)\}$
+\end{tabbing}
+
+\item Extend Hoare logic with rules to handle one-armed conditionals
+  and \impfnt{do}-\impfnt{until} loops.\\
+  
+\textbf{Answer:} \\
+\[
+\infrule[IF-THEN]
+{ \vdash \hrtrp{P \wedge b}{c}{Q} \quad \vdash \hrtrp{P \wedge \neg b}{skip}{Q}}
+{ \vdash \hrtrp{P}{\IF~b~\THEN~c}{Q} }
+{}
+\]
+\[
+\infrule[DO-UNTIL]
+{ \vdash \hrtrp{P}{c}{P}}
+{ \vdash \hrtrp{P}{\until{c}{b}}{P \wedge b} }
+{}
+\]
+
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}
+  A simple way to prove two programs equivalent is to show that they
+  denote the same mathematical object. In particular, this is often
+  dramatically simpler than reasoning using the operational
+  semantics. Using the denotational semantics, prove the following
+  equivalences:
+
+\begin{itemize}
+\item $(x := x + 21; x := x + 21) \sim x := x + 42$
+
+\item $(x := 1; \until{x := x + 1}{x \lt 0}) \sim (\while{\TRUE}{c})$
+
+\item $(x := x) \sim (\IF~(x = x + 1)~\THEN~x := 0)$
+
+\end{itemize}
+\textbf{Answer:}
+\begin{enumerate}
+\item 
+	\begin{tabbing}
+	$C[\![x := x + 21; x := x + 21]\!]$ \ $=$ \ \\
+	$=$ \= $\{(\sigma, \sigma'') \ | \ \exists \sigma'. ((\sigma, \sigma') \in C[\![x := x + 21]\!] \wedge (\sigma', \sigma'') \in C[\![x : = x + 21]\!])\}$\\
+	$=$ \> $\{(\sigma, \sigma'') \ | \ (\sigma, \sigma[x \mapsto \sigma(x) + 21]) \in C[\![x := x + 21]\!] \wedge (\sigma[x \mapsto \sigma(x) + 21], \sigma'') \in C[\![x := x + 21]\!] \}$\\
+	$=$ \> $\{(\sigma, \sigma'') \ | \ (\sigma, \sigma[x \mapsto \sigma(x) + 21]) \in C[\![x := x + 21]\!]$\\
+	\quad $\wedge (\sigma[x \mapsto \sigma(x) + 21], \sigma[x \mapsto \sigma(x) + 21 + 21]) \in C[\![x := x + 21]\!] \}$\\
+	$=$ \> $\{(\sigma, \sigma'') \ | \ (\sigma, \sigma[x \mapsto \sigma(x) + 21]) \in C[\![x := x + 21]\!]$\\ 	\quad$\wedge (\sigma[x \mapsto \sigma(x) + 21], \sigma[x \mapsto \sigma(x) + 42]) \in C[\![x := x + 21]\!] \}$\\
+	$=$ \> $\{(\sigma, \sigma'') \ | \ (\sigma, \sigma[x \mapsto \sigma(x) + 42) \in C[\![x := x + 42]\!]\}$\\
+	$=$ \> $C[\![x := x + 42]\!]$
+	\end{tabbing}
+
+\item
+	\begin{tabbing}
+		$C[\![x := 1; \until{x := x + 1}{x \lt 0}]\!]$ \\
+		$=$ \= $\{(\sigma, \sigma'') \ | \ \exists \sigma'.((\sigma, \sigma') \in C[\![x := x + 1]\!] \wedge (\sigma', \sigma'') \in C[\![\until{x := x + 1}{x \lt 0}]\!])\}$ \\ 
+		$=$ \> $\{(\sigma, \sigma'') \ | \ (\sigma, \sigma[x \mapsto 1]) \in C[\![x := x + 1]\!] \wedge (\sigma[x \mapsto 1, \sigma'') \in C[\![\until{x := x + 1}{x \lt 0}]\!]\}$ \\
+		By the definition of the denotational semantics, command $C[\![\until{x := x + 1}{x \lt 0}]\!]$ is equal to\\
+		$fix(F)$ where\\[0.1cm]
+		
+		$C[\![\until{x := x + 1}{x \lt 0}]\!]$ \= $=$ \= $\{(\sigma, \sigma') \ | \ (\sigma, \sigma') \in C[\![c]\!] \wedge (\sigma', true) \in B[\![b]\!]\}$ $\cup$ \\
+		\> \> $\{(\sigma, \sigma'') \ | \exists\sigma'.((\sigma, \sigma') \in C[\![c]\!] \wedge (\sigma', false) \in B[\![b]\!] \wedge (\sigma', \sigma'') \in f)\}$ \\
+		By the Kleene fixpoint theorem we have that $fixF = \cup_iF^i(\emptyset)$. For the situation where $i = 0,$\\
+		$F^0(\emptyset) = \emptyset$. 
+		Because $\sigma(x) = 1$, so after executing the command $x := x + 1$ we can obtain $\sigma'(x) = 2$\\ 
+		and $(\sigma', false) \in B[\![ x \lt 0]\!]$. When we apply $F$ on $F^0$ which is empty set, we can get $F^1(\emptyset) = \emptyset$. \\
+		Assume that $F^i(\emptyset) = \emptyset$, because $x$ is always greater than $0$, we still have $(\sigma, false) \in B[\![x \lt 0]\!]$. \\
+		We apply $F$ again, and from the induction hypothesis we can get that $F(F^i(\emptyset)) = F(\emptyset) = \emptyset$. \\
+		Consequently, $C[\![\until{x := x + 1}{x \lt 0}]\!]$ is finally evaluated to be $\emptyset$.\\
+		Therefore, $C[\![x := 1; \until{x := x + 1}{x \lt 0}]\!] = \emptyset$ \\[0.2cm]
+		
+		$C[\![\while{true}{c}]\!]$ is equal to $fix(F')$ where\\
+		$F'(f)$ \= $=$ \= $\{(\sigma, \sigma) \ | \ (\sigma, false) \in B[\![b]\!]\}$\\
+		\> $=$ \> $\{(\sigma, \sigma'') \ | \ (\sigma, true) \in B[\![b]\!] \wedge (\sigma, \sigma') \in C[\![c]\!] \wedge (\sigma', \sigma'') \in f\}$. \\ 
+		By the same way above, we can also evaluate the $C[\![\while{true}{c}]\!]$ to be $\emptyset$. Because both commands \\
+		are evaluated to be $\emptyset$. These two commands are equivalent.
+	\end{tabbing}
+	
+\item
+	\begin{tabbing}
+	$C[\![\IF~(x = x + 1)~\THEN~x := 0]\!]$ \= $=$ \= $\{(\sigma, \sigma) \ | \ (\sigma, false) \in B[\![ x = x + 1 ]\!]\}$\\
+	\> \> $\cup \ \{(\sigma, \sigma') \ | \ (\sigma, true) \in B[\![ x = x + 1]\!] \wedge (\sigma, \sigma') \in C[\![ x := 0]\!]\}$\\
+	since the guard of $ x = x + 1$ is always false, the assignment will not be executed.\\
+	\> $=$ \> $\{(\sigma, \sigma) \ | (\sigma, false) \in B[\![ x = x + 1]\!]\}$\\
+	\> $=$ \> $\{(\sigma, \sigma) \ | (\sigma, \sigma[x \mapsto \sigma(x)]) \in C[\![x := x]\!]\}$\\
+	\> $=$ \> $C[\![ x : = x ]\!]$
+	\end{tabbing}
+	
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}
+Find a suitable invariant for the loop in the following program
+%
+\[
+\begin{array}{l}
+\{ x = n \wedge y = m \}\\[1ex]
+\assgn{r}{x};\\
+\assgn{q}{0};\\
+\WHILE~(y \leq r)~\DO~\{\\
+\quad \assgn{r}{r - y};\\
+\quad \assgn{q}{q + 1};\\
+\}\\[1ex]
+\{ r \lt m \wedge n = r + m * q \}\\
+\end{array}
+\]
+Note: you do \emph{not} have to give the proof of this partial
+correctness statement in Hoare Logic, but you may wish to complete the
+proof to convince yourself your invariant is suitable.\\
+
+\noindent \textbf{Answer:} The invariant for the loop is $I = \{n = r + y * q \wedge y = m\}$
+
+\end{exercise}
+
+
+\begin{exercise}
+  Prove the following partial correctness specifications in Hoare
+  Logic. You may write your proofs using a ``decorated program'', in
+  which you indicate the assertion at each program point, invariants
+  for loops, and any implications needed for the
+  \rulename{Consequence} rule.
+
+\begin{center}
+\begin{minipage}{.5\textwidth}
+\[
+\begin{array}{rl}
+\text{\textbf{(a)}} & \{ \exists n.~x = 2 \times n + 1 \}\\
+&\;\WHILE~y \gt 0~\DO\\
+&\qquad x := x + 2\\
+&\{ \exists n.~x = 2 \times n + 1 \}
+\end{array}
+\]
+\vspace*{1.75cm}
+\end{minipage}\begin{minipage}{.5\textwidth}
+\[
+\begin{array}{rl}
+\text{\textbf{(b)}} & \{ x = i \wedge y = j \wedge 0 \leq i \}\\
+& \;\ASSGN{z}{0}\\
+& \;\WHILE~(x \gt 0)~\DO~\{\\
+& \qquad\ASSGN{z}{z + y};\\
+& \qquad\ASSGN{x}{x - 1}\\
+& \;\};\\
+& \;\ASSGN{y}{0}\\
+& \{ x = 0 \wedge y = 0 \wedge z = i \times j \}
+\end{array}
+\]
+\end{minipage}
+\end{center}
+\noindent \textbf{Answer:}
+\begin{enumerate}
+	\item We can still get $\exists n. x = 2 \times n + 1$ after executing the command $x := x + 2$. This is due to
+	\[ 
+	 x = 2 \times n + 1 + 2 = 2 \times (n + 1) + 1
+	\] 
+	Consequently, let $\{P\} = \{\exists n. x = 2 \times n + 1\}$ and $c = x := x + 2$, we can obtain $\hrtrp{P}{c}{P}$. Using the following implication,
+	\[
+		\{P \wedge y \gt 0\} \implies \{P\}
+	\]
+	we can get $\hrtrp{P \wedge y \gt  0}{c}{P}$ from CONSEQUENCE rule. Based on the Hoare Logic of WHILE, we can get,
+	\[
+	\hrtrp{P}{\while{y \gt 0}{x := x + 2}}{P \wedge y \leq 0}
+	\] 
+	With the following implication $\{P \wedge y \leq 0\} \implies \{P\}$ and CONSEQUENCE rule, the partial correctness specification is proved.
+	\item 
+		\[
+		\begin{array}{rl}
+		& \{ x = i \wedge y = j \wedge 0 \leq i \} \implies\\
+		& \{ 0 = 0 \wedge x = i \wedge y = j \wedge 0 \leq i \}\\
+		& \;\ASSGN{z}{0}\\
+		& \{ z = 0 \wedge x = i \wedge y = j \wedge 0 \leq i \} \implies\\
+		& \{ z + x \times y = i \times y \wedge \ x \geq 0\}\\
+		& \WHILE~(x \gt 0)~\DO~\{\\
+		& \{ z + x \times y = i \times y \wedge \ x \geq 0\ \wedge x \gt 0\} \implies\\
+		& \{ z + y + ( x - 1) \times y = y = i \times j\wedge \ (x - 1) \geq 0 \}\\
+		& \qquad\ASSGN{z}{z + y};\\
+		& \{ z + ( x - 1) \times y = i \times j \wedge \ (x - 1) \geq 0\}\\
+		& \qquad\ASSGN{x}{x - 1}\\
+		& \{ z + x \times y = i \times j \wedge \ x \geq 0\}\\
+		& \;\};\\
+		& \{ z + x \times y = i \times j \wedge \ x \geq 0\ \wedge \neg(x \gt 0)\} \implies \\
+		& \{ z + x \times y = i \times j \wedge x = 0 \wedge 0 = 0\}\\
+		& \ASSGN{y}{0}\\
+		& \{ z + x \times y = i \times j \wedge x = 0 \wedge y = 0\} \implies\\
+		& \{ x = 0 \wedge y = 0 \wedge z = i \times j \}
+		\end{array}
+	 	\]
+\end{enumerate}
+\end{exercise}
+
+
+\begin{exercise}
+\begin{enumerate}
+\item If we replaced the \rulename{While} rule with the following
+  rule,
+%
+\[
+\infrule[While-Alt1]
+{ \vdash \hrtrp{P}{c}{(b \Rightarrow P) \wedge (\neg b \Rightarrow Q)} }
+{ \vdash \hrtrp{(b \Rightarrow P) \wedge (\neg b \Rightarrow Q) }{\while{b}{c}}{Q} }
+{}
+\]
+%
+would the logic still be (relatively) complete? Prove it or give a
+counterexample.\\
+
+\noindent \textbf{Answer:} The logic would not be (relatively) complete. The counterexample is,
+\[
+	\begin{array}{l}
+	\{ x = m \wedge y = n \wedge 0 \leq n \}\\[1ex]
+	\WHILE~(0 \lt y)~\DO~\{\\
+	\quad \assgn{x}{x + 1};\\
+	\quad \assgn{y}{y - 1};\\
+	\}\\[1ex]
+	\{ x + y = m + n \}\\
+	\end{array}
+\]
+From the above example, we can see that $y \leq 0$ doesn't indicate $x + y = m + n$. That is to say, the above example cannot be proved by the rules of Hoare logic. However, the example is valid partial correctness statements. So the logic is not (relatively) complete.
+
+\item What if we replaced it with the following rule instead?
+%
+\[
+\infrule[While-Alt2]
+{ \vdash \hrtrp{P}{c}{P} }
+{ \vdash \hrtrp{P}{\while{b}{c}}{P \wedge \neg b} }
+{}
+\]
+%
+Prove it or give a counterexample.\\
+
+\noindent \textbf{Answer:} The logic would not be (relatively) complete. The counterexample is,
+\[
+	\begin{array}{l}
+	\{ x = m \wedge y = n \wedge 0 \leq n \}\\[1ex]
+	\WHILE~(0 \lt y)~\DO~\{\\
+	\quad \assgn{x}{x + 1};\\
+	\quad \IF~(y \gt 0)~\THEN~(y := y - 1)\}\\[1ex]
+	\{ x + y = m + n \}\\
+	\end{array}
+\]
+In this example, $P$ should be $\{x + y = m + n\}$. However, we cannot prove $\hrtrp{P}{c}{P}$ because we cannot determine whether the if-then semantics executes the assignment or directly skips. As a result, we are not able to make the proof go through. However, the example is valid partial correctness statements. So the logic is not (relatively) complete.
+\end{enumerate}
+\end{exercise}
+
+\begin{debriefing} \hfill\\[-4ex]
+\begin{enumerate*}
+\item How many hours did you spend on this assignment?\\
+\noindent \textbf{Answer:} two hours
+\item Would you rate it as easy, moderate, or difficult?\\
+\noindent \textbf{Answer:} moderate
+\item How deeply do you feel you understand the material it covers (0\%–100\%)?\\
+\noindent \textbf{Answer:} 80\%
+\item If you have any other comments, we would like to hear them!
+  Please write them here or send email to
+  \mtt{jnfoster@cs.cornell.edu}.
+\end{enumerate*}
+\end{debriefing}
+
+\end{document}
+

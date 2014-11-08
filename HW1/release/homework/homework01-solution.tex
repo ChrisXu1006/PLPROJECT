@@ -1,0 +1,265 @@
+\documentclass[11pt]{article}
+
+\usepackage{../tex/jnf}
+\solutionfalse
+
+\renewcommand{\labelenumi}{\textbf{(\alph{enumi})}}
+
+\begin{document}
+
+\bigredheader{Homework \#1}
+
+\vspace*{-1.25\bigskipamount}
+
+%% \paragraph{Changelog}
+%% \begin{itemize}
+%% \item Version 2 (this version): fixed typo; the expected output for the
+%%   conditional is $7$ not $42$.
+%% \item Version 1: Initial version.
+%% \end{itemize}
+
+\paragraph{By.} 
+%
+\textbf{Rui Xu(rx37), Yao Wang(yw438) \hfill \today}
+
+\paragraph{Instructions.} 
+%
+This assignment may be completed with one partner. You and your
+partner should submit a single solution on CMS. Please do not offer or
+accept any other assistance on this assignment. Late submissions will
+not be accepted.
+
+\newcommand{\ELVIS}[2]{#1~\mtt{?:}~#2}
+
+\begin{exercise}
+  Suppose we extend our language of arithmetic expressions with an
+  ``Elvis'' operator that evaluates to its first sub-expression if it
+  is non-zero, and its second sub-expression otherwise:
+%
+\[
+e ::= \VAR{x} 
+ \mid \LIT{n} 
+ \mid \PLUS{e_1}{e_2} 
+ \mid \TIMES{e_1}{e_2} 
+ \mid \ASSGN{x}{e_1}{e_2}
+ \mid \lowershade{$\ELVIS{e_1}{e_2}$}
+\]
+%
+The following inference rules extend the operational semantics to
+handle these expressions:
+%
+\begin{mathpar}
+\inferrule*[right=Elvis1]
+{ \CONFIG{\sigma}{e_1} \stepsone \CONFIG{\sigma'}{e_1'} }
+{ \CONFIG{\sigma}{\ELVIS{e_1}{n_2}} \stepsone \CONFIG{\sigma'}{\ELVIS{e_1'}{n_2}} }
+
+\inferrule*[right=Elvis2]
+{ \CONFIG{\sigma}{e_2} \stepsone \CONFIG{\sigma'}{e_2'} }
+{ \CONFIG{\sigma}{\ELVIS{e_1}{e_2}} \stepsone \CONFIG{\sigma'}{\ELVIS{e_1}{e_2'}} }
+
+\\
+\inferrule*[right=Elvis3]
+{ }
+{ \CONFIG{\sigma}{\ELVIS{0}{n}} \stepsone \CONFIG{\sigma}{n} }
+
+\inferrule*[right=Elvis4]
+{ m \neq 0}
+{ \CONFIG{\sigma}{\ELVIS{m}{n}} \stepsone \CONFIG{\sigma}{m} }
+\end{mathpar}
+%
+Unfortunately, they do not implement the intended semantics. For
+example, evaluating
+\[
+\ASSGN{x}{\PLUS{1}{1}}{(\ELVIS{x}{\ASSGN{x}{\PLUS{1}{x}}{0}})}
+\]
+yields $3$, not $2$.
+
+\begin{enumerate*}
+\item Give the derivation tree for the first step of evaluation for
+  the above expression using $\sigma$.\\[0.1cm]
+\noindent \textbf{Answers:}
+\begin{mathpar}
+	\inferrule*[right=Assign1]
+	{
+		\inferrule*[right=Add]
+		{$1 + 1 = 2$}
+		{\CONFIG{\sigma}{\ $x := 1 + 1$} \stepsone \CONFIG{\sigma}{\ $x := 2$}}
+	}
+	{\CONFIG{\sigma}{\ \ASSGN{$x$}{$1 + 1$}{\ELVIS{$x$}{\ \ASSGN{$x$}{$1 + x$}{$0$}}}} \stepsone \CONFIG{\sigma}{\ASSGN{$x$}{$2$}{\ELVIS{$x$}{\ASSGN{$x$}{$1 + x$}{$0$}}}}}
+\end{mathpar}
+\item Give the rest of the sequence of configurations encountered
+  during the evaluation of the above expression. Note that you do not
+  need to write out the derivation trees. Just give the sequence of
+  configurations encountered during evaluation.\\[0.1cm]
+\noindent \textbf{Answer:}
+\begin{tabbing}
+\CONFIG{\sigma}{\ \ASSGN{$x$}{$2$}{(\ELVIS{$x$}{\ASSGN{$x$}{$1 + x$}{$0$}})}}\quad\= \stepsone \= \quad\CONFIG{\sigma[$x$ \ \mapsto \ $2$]}{\ \ELVIS{$x$}{\ASSGN{$x$}{\ $1 + x$}{$0$}}}\\ 
+																				  \> \stepsone \> \quad\CONFIG{\sigma[$x$ \ \mapsto \ $2$]}{\ \ELVIS{$x$}{\ASSGN{$x$}{\ $1 + 2$}{$0$}}}\\
+																				  \> \stepsone \> \quad\CONFIG{\sigma[$x$ \ \mapsto \ $2$]}{\ \ELVIS{$x$}{\ASSGN{$x$}{\ $3$}{$0$}}}\\
+																				  \> \stepsone \> \quad\CONFIG{\sigma[$x$ \ \mapsto \ $3$]}{\ \ELVIS{$x$}{$0$}}\\
+																				  \> \stepsone \> \quad\CONFIG{\sigma[$x$ \ \mapsto \ $3$]}{\ \ELVIS{$3$}{$0$}}\\
+																				  \> \stepsone \> \quad\CONFIG{\sigma[$x$ \ \mapsto \ $3$]}{\ $3$}
+\end{tabbing}
+\item Revise the rules so they implement the intended semantics. Using
+  your rules, evaluating the above expression with the empty store
+  should evaluate to $2$ (you do not need to show this).\\[0.1cm]
+\noindent \textbf{Answer:} \\
+The solution is removing all rules(ELVIS 1,2,3,4), and define the following new rules:
+\begin{mathpar}
+	\inferrule*[right=ELVIS1\_new]
+	{\CONFIG{\sigma}{e_1} \stepsone \CONFIG{\sigma'}{e_1'}}
+	{\CONFIG{\sigma}{\ELVIS{e_1}{e_2}} \stepsone \CONFIG{\sigma'}{\ELVIS{e_1'}{e_2}}}
+	
+	\inferrule*[right=ELVIS2\_new]
+	{m \neq 0}
+	{\CONFIG{\sigma}{\ELVIS{m}{e_2}} \stepsone \CONFIG{\sigma}{m}}
+	
+	\inferrule*[right=ELVIS3\_new]
+	{ }
+	{\CONFIG{\sigma}{\ELVIS{0}{e_2}} \stepsone \CONFIG{\sigma}{e_2}}
+\end{mathpar}
+\end{enumerate*}
+\end{exercise}
+
+\begin{exercise}
+  Now suppose instead we extend our language with truncating integer
+  division:
+%
+\[
+e ::= \VAR{x} 
+ \mid \LIT{n} 
+ \mid \PLUS{e_1}{e_2} 
+ \mid \TIMES{e_1}{e_2} 
+ \mid \lowershade{$\DIV{e_1}{e_2}$}
+ \mid \ASSGN{x}{e_1}{e_2}
+\]
+%
+We add new evaluation rules to the operational semantics to handle
+these expressions:
+%
+\begin{mathpar}
+\inferrule*[right=LDiv]
+{ \CONFIG{\sigma}{e_1} \stepsone \CONFIG{\sigma'}{e_1'} }
+{ \CONFIG{\sigma}{\DIV{e_1}{e_2}} \stepsone \CONFIG{\sigma'}{\DIV{e_1'}{e_2}} }
+
+\inferrule*[right=RDiv]
+{ \CONFIG{\sigma}{e_2} \stepsone \CONFIG{\sigma'}{e_2'} }
+{ \CONFIG{\sigma}{\DIV{e_1}{e_2}} \stepsone \CONFIG{\sigma'}{\DIV{e_1}{e_2'}} }
+
+\inferrule*[right=Div]
+{ n \neq 0 \\ p = m / n }
+{ \CONFIG{\sigma}{\DIV{m}{n}} \stepsone \CONFIG{\sigma}{p} }
+\end{mathpar}
+
+\begin{enumerate*}
+\item Is the semantics deterministic? If not, give a counter example.\\[0.1cm]
+\noindent \textbf{Answer:} The semantics is not deterministic.\\
+\noindent The counter example is \CONFIG{\sigma}{16/8/4}. When we apply LDIV rule, the configuration can step into \CONFIG{\sigma}{2/4}. On the other hand, if we use RDIV rule, the configuration can also be transformed to \CONFIG{\sigma}{16/2}. And these two configurations are absolutely different.\\
+\item Does the semantics terminate? If not, give a counterexample.\\[0.1cm]
+\noindent \textbf{Answer:} The semantics terminates.\\
+\item Does the progress theorem still hold? If not, give a counterexample.\\[0.1cm]
+\noindent \textbf{Answer:} The progress theorem doesn't hold for truncating integer division. If the denominator of evaluation is zero(like $e_1$ = 2/0), the current configuration cannot progress to any other configuration, while the expression itself is not integer.  
+\end{enumerate*}
+\end{exercise}
+
+\begin{exercise}
+  Let $c$ range over characters drawn from a fixed alphabet.  The
+  following grammar describes the set of strings over the same
+  alphabet.
+%
+\[
+s ::= \epsilon \mid c \cdot s
+\]
+%
+There are two cases: $\epsilon$ represents the empty string and $c
+\cdot s$ represents the string obtained by concatenating $c$ and $s$.
+%
+\begin{enumerate*}
+\item Give an inductive definition of the set of strings $s$ using
+  inference rules.\\[0.1cm]
+\noindent \textbf{Answer:}\\
+\begin{mathpar}
+	\inferrule*
+	{ }
+	{ \quad \epsilon \in s \quad}
+	
+	\inferrule*
+	{ c \in defined \ alphabet, \ s \in s }
+	{ \quad\quad c \cdot s \in s \quad\quad }
+\end{mathpar}
+
+\item Give the cases we would need to establish to prove that a
+  property $P$ holds of all strings $s$ by structural
+  induction---e.g., $P(\epsilon)$, etc.\\[0.1cm]
+\noindent \textbf{Anwers:}\\
+\noindent \textbf{Base cases:} $P(\epsilon)$\\
+\noindent \textbf{Induction cases:} $®P(s) \Rightarrow P(c \cdot s)$\\
+
+\item Complete the definition of the $\mathit{length}$ relation which
+  associates a string to the number of characters contained in it, by
+  giving the cases for single characters and concantenations.
+\begin{mathpar}
+\inferrule*
+{ }
+{ (\epsilon, 0) \in \mathit{length}}
+\end{mathpar}
+\end{enumerate*}
+\end{exercise}
+\quad\quad\quad \textbf{Answers:}\\
+\begin{mathpar}
+	\inferrule*[right=concantenations]
+	{ c \in defined \ alphabet \ \ (s, m) \in \mathit{length}}
+	{(c \cdot s, m+1) \in \mathit{length}}
+\end{mathpar}
+\begin{exercise}
+Explain the flaw in the following ``proof.''
+
+\begin{description}
+\item \textbf{Theorem.} If $n$ is an even number greater than or equal
+  to $2$, then there exists $i$ such that $n = 2^i$.
+
+\item \textbf{Proof.} We will show that $P(n)$ holds for all $n$ by
+  mathematical induction.
+
+\begin{itemize}
+\item \textbf{Base case:} $P(0)$ holds since $0$ is not greater than
+  or equal to $2$. 
+
+\item \textbf{Induction case:} We must show that $P(n)$ implies
+  $P(n+1)$. We analyze several sub-cases. If $n$ is $1$ then $P(1)$
+  holds since $1 = 2^0$. If $n$ is $2$ then $P(2)$ holds since $2 =
+  2^1$. Otherwise, if $n$ is odd, then the assumption that $n$ is even
+  is false and $P(n)$ vacuously holds. Otherwise, $n$ is even, so
+  there exists an $m$ such that $n = 2 \times m$. By induction
+  hypothesis, there exists $j$ such that $m = 2^j$. Hence, we have,
+\[ 
+\begin{array}{rcll}
+n & = & 2 \times m   & \text{As $n$ is even}\\
+  & = & 2 \times 2^j & \text{By induction hypothesis on $m$}\\
+  & = & 2^{j+1}       & \text{By substitution}
+\end{array}
+\]
+ which finishes the sub-case and the inductive proof. \hfill$\Box$
+\end{itemize}
+\end{description}
+\noindent \textbf{Answer:}
+\begin{itemize}	
+\item In terms of Induction case, induction hypothesis only implies that there exists $j$ 	such that $m = 2^j$ for even numbers which are greater or equal to 2 rather than all integers greater or equal to 2. Therefore, if $m$ is odd, the step from the $ n = 2 \times m $ to $ n = 2 \times 2^j $ doesn't 	hold. 
+\end{itemize}
+\end{exercise}
+
+\begin{debriefing} \hfill\\[-4ex]
+\begin{enumerate*}
+\item How many hours did you spend on this assignment?\\
+\noindent \textbf{Answer:} We spent about two hours on this assignment.\\
+\item Would you rate it as easy, moderate, or difficult?\\
+\noindent \textbf{Answer:} The difficulty of the assignment is moderate.\\ 
+\item How deeply do you feel you understand the material it covers (0\%–100\%)?\\
+\noindent \textbf{Answer:} About 90\%.\\
+\item If you have any other comments, we would like to hear them!
+  Please write them here or send email to
+  \mtt{jnfoster@cs.cornell.edu}.
+\end{enumerate*}
+\end{debriefing}
+\end{document}
+

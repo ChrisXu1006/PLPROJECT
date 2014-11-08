@@ -1,0 +1,24 @@
+This directory contains the LaTeX sources for CS 4110 homeworks.
+
+STRUCTURE
+
+The tex/ directory contains LaTeX support files. Many of the macros
+used to typeset assignments are defined in jnf.sty, local.sty, etc.
+All other dependencies should be provided by your TeX installation. If
+you are having trouble with a particular dependency, I suggest
+installing it manually (hard) or using TeXLive or MacTeX (easy).
+
+The pdf/ directory contains PDF graphics 
+
+The homework/ directory contains the LaTeX source for the homework
+itself.
+
+BUILDING
+
+To build the homework, 
+
+  $ cd homework
+  $ pdflatex homework01
+
+This should create a file homework01.pdf
+

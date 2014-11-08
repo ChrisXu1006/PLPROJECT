@@ -1,0 +1,319 @@
+\newif\ifbeamer\beamerfalse
+
+\documentclass[11pt]{article}
+
+\usepackage{../tex/jnf}
+\usepackage{../tex/angle}
+
+\solutionfalse
+
+\renewcommand{\labelenumi}{\textbf{(\alph{enumi})}}
+
+\begin{document}
+
+\bigredheader{Homework \#2}
+
+\vspace*{-1.25\bigskipamount}
+
+\paragraph{By.} 
+%
+\textbf{Rui Xu(rx37), Yao Wang(yw438) \hfill \today}
+
+\paragraph{Instructions.} 
+%
+This assignment may be completed with one partner. You and your
+partner should submit a single solution on CMS. Please do not offer or
+accept any other assistance on this assignment. Late submissions will
+not be accepted.
+
+\begin{exercise}
+Prove the following theorem using the large-step semantics:
+
+\begin{theorem*}
+If $\sigma(i)$ is even and $\CONFIG{\sigma}{\while{b}{i := i+2}}
+\stepsto \sigma'$ then $\sigma'(i)$ is also even.
+\end{theorem*}
+\noindent \textbf{Proof:} \textbf{CASE \emph{FALSE}:} When b is \emph{false}, 
+\begin{mathpar}
+	\inferrule*[left=WHILE-FALSE]
+	{\CONFIG{\sigma}{$ \ b$} \stepsto False}
+	{\CONFIG{\sigma}{\while{$b$}{$i := i + 2$}} \stepsto \sigma'}
+\end{mathpar}
+where $\sigma = \sigma'$. Since $\sigma(i)$ is even, $\sigma'(i)$ should also be even.\\
+
+\noindent \textbf{CASE \emph{TRUE}:} When b is evaluated as \emph{true}, then\\
+\begin{mathpar}
+	\inferrule*[left=WHILE-T]
+	{$\CONFIG{\sigma}{b}\stepsto True, \ \CONFIG{\sigma}{c}\stepsto$ \sigma', $ \ \CONFIG{\sigma'}{\while{b}{i : i+2}}\stepsto$ \sigma''}
+	{$\CONFIG{\sigma}{\while{b}{i := i+2}}\stepsto$ \sigma''}
+\end{mathpar}
+Because $\sigma(i)$ is even and $\sigma'(i) = i + 2$, so $\sigma'(i)$ is even too. From induction hypothesis, if $\sigma'(i)$ is even and $\CONFIG{\sigma'}{\while{b}{i := i+2}}\stepsto \sigma''$ then $\sigma''(i)$ is also even. Therefore, $\sigma''(i)$ is also even. So theorem also holds for the case of true.
+\end{exercise}
+
+\begin{exercise}
+Recall that IMP commands are equivalent if they always evaluate to the
+same result:
+\[
+c_1 \sim c_2 ~~\defeq~~\forall \sigma,\sigma' \in \Set{Store}.~ <\sigma,c_1> \Downarrow \sigma' \Longleftrightarrow <\sigma,c_2> \Downarrow \sigma'.
+\]
+%
+For each of the following pair of IMP commands, either use the
+large-step operational semantics to prove they are equivalent or give
+a concrete counter-example showing that they are not equivalent. You
+may assume that the language has been extended with operators such as
+$x != 0$.
+
+\begin{enumerate}
+\item 
+$\assign{x}{a};~\assign{y}{a}$
+\qquad and \qquad
+$\assign{y}{a};~\assign{x}{a}$,\\
+where $a$ is an arbitrary arithmetic expression
+
+\noindent \textbf{Answer:} These two commands are not equivalent.\\
+\noindent \textbf{Counter-example:} $a = x + y, \sigma(x) = 2, \sigma(y) = 3$. For the first command, $\CONFIG{\sigma}{x : = x + y; y : = x + y} \stepsto \sigma'$, where $\sigma'(x) = 5, \sigma'(y) = 8$. In terms of the second command, $\CONFIG{\sigma}{y: = x + y; x := x + y} \stepsto \sigma''$, where $\sigma''(x) = 7, \sigma''(y) = 5$. The final stores are obviously not equal, therefore, they are not equivalent commands.
+
+\item 
+$\WHILE~b~\DO~c$ 
+\qquad and \qquad
+$\IF~b~\THEN~(\WHILE~b~\DO~c); c~\ELSE~\SKIP$,\\
+where $b$ is an arbitrary boolean expression and $c$ an arbitrary
+command.
+
+\noindent \textbf{Answer:} These two commands are not equivalent.\\
+\noindent \textbf{Counter-example:} $\WHILE~i~\textless \ 2~\DO~i := i + 1$ \quad and \quad $\IF~i \ \textless \ 2~\THEN~(\WHILE~i \ \textless \ 2~\DO~i := i + 1); i := i + 1 \ \ELSE~\SKIP$, and $\sigma(i) = 0$. After applying the first command, $\sigma'(i) = 2$, while $\sigma''(i) = 3$ for the second command. Because the final stores are not equal, so they are not equivalent commands.
+
+\item $\while{x~\mathord{!}\mathord{=}~0}{x := 0}$\qquad and \qquad $x:= 0 * x$
+
+\noindent \textbf{Answer:} They are the equivalent commands.\\
+\noindent \textbf{CASE $\sigma(x) = 0$:} then
+\begin{mathpar}
+	\inferrule*[left=WHILE-FALSE]
+	{\CONFIG{\sigma}{$x != 0$} \stepsto FALSE}
+	{\CONFIG{\sigma}{$\while{x~\mathord{!}\mathord{=}~0}{x := 0}$}\stepsto \sigma}
+	
+	\inferrule*[left=ASSGN]
+	{\CONFIG{\sigma}{$0 * x$}\stepsto $0$}
+	{\CONFIG{\sigma}{$x:= 0 * x$}\stepsto \sigma [$x$ \ \mapsto \ $0$]}
+\end{mathpar}
+\noindent Under the scenario where $\sigma(x) = 0$, the final stores are equal.\\
+
+\noindent \textbf{CASE $\sigma(x) != 0$}:
+\begin{mathpar}
+	\inferrule*[left=WHILE-TRUE]
+	{ \CONFIG{\sigma}{$x != 0$} \stepsto True, \
+	\CONFIG{\sigma}{$x := 0$} \stepsto \sigma[$x$ \mapsto $0$], \
+	\CONFIG{\sigma[$x$ \mapsto $0$]}{\while{$x != 0$}{$x := 0$}}\stepsto \sigma[$x$ \mapsto $0$]} 
+	{\CONFIG{\sigma}{\while{$x != 0$}{$x := 0$}} \stepsto \sigma[$x$ \mapsto $0$]}
+	
+	\inferrule*[left=ASSGN]
+	{\CONFIG{\sigma}{$0 * x$}\stepsto$0$}
+	{\CONFIG{\sigma}{$x:= 0 * x$}\stepsto \sigma [$x$ \ \mapsto \ $0$]}
+\end{mathpar}
+\noindent If $x$ is not equal to zero, the final stores are still the same. For all possibilities, the results are the same. So these two commands are equivalent. 
+
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}
+Let $\CONFIG{\sigma}{c} \stepsone \CONFIG{\sigma'}{c'}$ be the
+small-step operational semantics relation for IMP. Consider the
+following definition of the multi-step relation:
+
+\begin{mathpar}
+\inferrule*[right=R1]{ 
+}{
+\CONFIG{\sigma}{c} \stepsone\kleenestar \CONFIG{\sigma}{c}
+}
+
+\inferrule*[right=R2]{
+\CONFIG{\sigma}{c} \stepsone \CONFIG{\sigma'}{c'} \qquad
+\CONFIG{\sigma'}{c'} \stepsone\kleenestar \CONFIG{\sigma''}{c''}
+}{ \CONFIG{\sigma}{c} \stepsone\kleenestar \CONFIG{\sigma''}{c''} 
+}
+\end{mathpar}
+
+\noindent Prove the following theorem, which states that
+$\stepsone\kleenestar$ is transitive.
+
+\begin{theorem*} If \( \CONFIG{\sigma}{c} \stepsone\kleenestar
+\CONFIG{\sigma'}{c'} \) and \( \CONFIG{\sigma'}{c'}
+\stepsone\kleenestar \CONFIG{\sigma''}{c''} \) then \(
+\CONFIG{\sigma}{c} \stepsone\kleenestar \CONFIG{\sigma''}{c''} \).
+\end{theorem*}
+
+\noindent \textbf{Proof:} \textbf{CASE 1:} If $\CONFIG{\sigma}{c}$ is equal to $\CONFIG{\sigma'}{c'}$, since $\CONFIG{\sigma'}{c'} \stepsone\kleenestar \CONFIG{\sigma''}{c''}$, so we get that $\CONFIG{\sigma}{c} \stepsone\kleenestar \CONFIG{\sigma''}{c''}$\\
+
+\noindent \textbf{CASE 2:} If $\CONFIG{\sigma'}{c'}$ is equal to $\CONFIG{\sigma''}{c''}$, since $\CONFIG{\sigma}{c}$ \stepsone\kleenestar $\CONFIG{\sigma'}{c'}$ so we get that $\CONFIG{\sigma}{c} \stepsone\kleenestar \CONFIG{\sigma''}{c''}$\\
+
+\noindent \textbf{CASE 3:} If these three combinations of store and commands are not equal, from the \textbf{\emph{R2}} relation, we can get that there exists $\CONFIG{\sigma'''}{c'''}$ having the characteristic:
+\begin{mathpar}
+	\inferrule*[right=R2]
+	{ \CONFIG{\sigma}{$c$} \stepsone \CONFIG{\sigma'''}{$c'''$} \quad
+	  \CONFIG{\sigma'''}{$c'''$} \stepsone\kleenestar \CONFIG{\sigma'}{$c'$} }
+	{ \CONFIG{\sigma}{c} \stepsone\kleenestar \CONFIG{\sigma'}{$c'$} }
+\end{mathpar}
+From the induction hypothesis, if $\CONFIG{\sigma'''}{c'''}$ \stepsone\kleenestar $\CONFIG{\sigma'}{c'}$ and $\CONFIG{\sigma'}{c'}$ \stepsone\kleenestar $\CONFIG{\sigma''}{c''}$, there should be $\CONFIG{\sigma'''}{c'''}$ \stepsone\kleenestar $\CONFIG{\sigma''}{c''}$. Then we use \textbf{\emph{R2}} relationship:
+\begin{mathpar}
+	\inferrule*[right=R2]
+	{ \CONFIG{\sigma}{$c$} \stepsone \CONFIG{\sigma'''}{$c'''$} \quad
+	  \CONFIG{\sigma'''}{$c'''$} \stepsone \CONFIG{\sigma''}{$c''$}}
+	{ \CONFIG{\sigma}{$c$} \stepsone\kleenestar \CONFIG{\sigma''}{$c''$}}
+\end{mathpar}
+So from $\CONFIG{\sigma}{c}$ \stepsone\kleenestar $\CONFIG{\sigma'}{c'}$ and $\CONFIG{\sigma'}{c'}$ \stepsone\kleenestar $\CONFIG{\sigma''}{c''}$, we can get that \CONFIG{\sigma}{$c$} \stepsone\kleenestar \CONFIG{\sigma''}{$c''$}
+\end{exercise}
+
+\begin{exercise}
+
+\newcommand{\THROW}[1]{\ensuremath{\impfnt{throw}~#1}}
+\newcommand{\TRYCATCH}[3]{\ensuremath{\impfnt{try}~#1~\impfnt{with}~#2~\DO~#3}}
+
+In this exercise, you will extend the IMP language with
+exceptions. These exceptions are intended to behave like the analogous
+constructs found in languages such as Java. We will proceed in several
+steps.
+
+First, we fix a set of exceptions, which will ranged over by
+metavariables $e$, and we extend the syntax of the language with new
+commands for throwing and handling exceptions:
+%
+\[
+\begin{array}{r@{~}c@{~}l}
+ c & ::= & \SKIP \\
+& \mid & x := a\\
+& \mid & c_1 ; c_2\\
+& \mid & \cond{b}{c_1}{c_2} \\
+& \mid & \while{b}{c} \\
+& \mid & \shade{\THROW{e}} \\
+& \mid & \shade{\TRYCATCH{c_1}{e}{c_2}}
+\end{array}
+\]
+%
+Intuitively, evaluating a command either yields a modified store or a
+pair comprising a modified store and an (uncaught) exception. We let
+metavariables $r$ range over such results:
+%
+\[
+r ::= \sigma \mid (\sigma,e)
+\]
+%
+
+Second, we change the type of the large-step evaluation relation so it
+yields a result instead of a store: $<\sigma,c> \stepsto r$.
+
+Third, we will extend the large-step semantics rules so they handle
+\impfnt{throw} and \impfnt{try} commands. This is your task in this
+exercise. 
+
+Informally, $\THROW~e$ should return exception $e$, and
+$\TRYCATCH{c_1}{e}{c_2}$ should execute $c_1$ and return the result it
+produces, unless the result contains an exception $e$, in which case
+it should discard $e$ executes the handler $c_2$. You will also need
+to modify many other rules so they have the right type and also
+propagate exceptions.\\
+
+\noindent \textbf{Answer: }
+\begin{mathpar}
+	\inferrule*[left=SKIP]
+	{ }
+	{\CONFIG{\sigma}{SKIP}\stepsto \sigma}
+
+	\inferrule*[left=ASSGN]
+	{\CONFIG{\sigma}{$a$}\stepsto \ $n$}
+	{\CONFIG{\sigma}{$ \ x := a$}\stepsto \sigma[$x$ \ \mapsto \ $n$]}
+	
+	\inferrule*[left=SEQ1]
+	{ {\CONFIG{\sigma}{c_1} \stepsto \sigma'}, {\CONFIG{\sigma'}{c_2} \stepsto \sigma''}}
+	{\CONFIG{\sigma}{c_1 ; c_2} \stepsto \sigma''}
+	
+	\inferrule*[left=SEQ2]
+	{ {\CONFIG{\sigma}{c_1} \stepsto \sigma'}, {\CONFIG{\sigma'}{c_2} \stepsto (\sigma'',e)} }
+	{\CONFIG{\sigma}{c_1 ; c_2} \stepsto (\sigma'',e)}
+	
+
+	\inferrule*[left=SEQ3]
+	{ \CONFIG{\sigma}{c_1} \stepsto (\sigma',e)}
+	{ \CONFIG{\sigma}{c_1 ; c_2} \stepsto (\sigma', e)}
+	
+\end{mathpar}
+
+\begin{mathpar}
+	\inferrule*[left=IF-T1]
+	{ \CONFIG{\sigma}{$ \ b$} \stepsto True, \ \CONFIG{\sigma}{c_1} \stepsto \sigma'}
+	{ \CONFIG{\sigma}{\cond{$b$}{c_1}{c_2}} \stepsto \sigma'}
+	
+	\inferrule*[left=IF-T2]
+	{ \CONFIG{\sigma}{$ \ b$} \stepsto True, \ \CONFIG{\sigma}{c_1} \stepsto (\sigma', e)}
+	{ \CONFIG{\sigma}{\cond{$b$}{c_1}{c2}} \stepsto (\sigma', e)}
+	
+	\inferrule*[left=IF-F1]
+	{ \CONFIG{\sigma}{$ \ b$} \stepsto False, \ \CONFIG{\sigma}{c_2} \stepsto \sigma''}
+	{ \CONFIG{\sigma}{\cond{$b$}{c_1}{c_2}} \stepsto \sigma''}
+	
+	\inferrule*[left=IF-T2]
+	{ \CONFIG{\sigma}{$b$} \stepsto False, \ \CONFIG{\sigma}{c_2} \stepsto (\sigma'', e)}
+	{ \CONFIG{\sigma}{\cond{$b$}{c_1}{c2}} \stepsto (\sigma'', e)}
+	
+	\inferrule*[left=WHILE-F]
+	{ \CONFIG{\sigma}{$ \ b$} \stepsto False }
+	{ \CONFIG{\sigma}{\while{$b$}{$c$}} \stepsto \sigma}
+	
+	\inferrule*[left=WHILE-T1]
+	{ \CONFIG{\sigma}{$ \ b$} \stepsto True,
+	  \CONFIG{\sigma}{$ \ c$} \stepsto \sigma',
+	  \CONFIG{\sigma'}{\while{$b$}{$c$}} \stepsto \sigma''
+	}
+	{ \CONFIG{\sigma}{\while{$b$}{$c$}} \stepsto \sigma''}
+	
+	\inferrule*[left=WHILE-T2]
+	{ \CONFIG{\sigma}{$ \ b$} \stepsto True,
+	  \CONFIG{\sigma}{$ \ c$} \stepsto \sigma',
+	  \CONFIG{\sigma'}{\while{$b$}{$c$}} \stepsto (\sigma'', e)
+	}
+	{ \CONFIG{\sigma}{\while{$b$}{$c$}} \stepsto (\sigma'', e)}
+	
+	\inferrule*[left=WHILE-T3]
+	{ \CONFIG{\sigma}{$ \ b$} \stepsto True,
+	  \CONFIG{\sigma}{$ \ c$} \stepsto (\sigma', e)
+	}
+	{ \CONFIG{\sigma}{\while{$b$}{$c$}} \stepsto (\sigma', e)}
+	
+	\inferrule*[left=THROW]
+	{ }
+	{\CONFIG{\sigma}{\THROW{$e$}} \stepsto (\sigma, $e$)}
+	
+	\inferrule*[left=TRY1]
+	{ \CONFIG{\sigma}{c_1} \stepsto \sigma'}
+	{ \CONFIG{\sigma}{\TRYCATCH{c_1}{e}{c_2}} \stepsto \sigma'}
+	
+	\inferrule*[left=TRY2(where $e_1 \neq e_2$)]
+	{ \CONFIG{\sigma}{c_1} \stepsto (\sigma', e_2)}
+	{ \CONFIG{\sigma}{\TRYCATCH{c_1}{e_1}{c_2}} \stepsto (\sigma', e_2)}
+	
+	\inferrule*[left=TRY3]
+	{ \CONFIG{\sigma}{c_1} \stepsto (\sigma', e), \CONFIG{\sigma'}{c_2} \stepsto \sigma''}
+	{ \CONFIG{\sigma}{\TRYCATCH{c_1}{e}{c_2}} \stepsto \sigma''}
+	
+	\inferrule*[left=TRY4]
+	{ \CONFIG{\sigma}{c_1} \stepsto (\sigma', e), \CONFIG{\sigma'}{c_2} \stepsto (\sigma'', e')}
+	{ \CONFIG{\sigma}{\TRYCATCH{c_1}{e}{c_2}} \stepsto (\sigma'',e')}
+	
+\end{mathpar}
+
+\end{exercise}
+
+\begin{debriefing} \hfill\\[-4ex]
+\begin{enumerate*}
+\item How many hours did you spend on this assignment?\\
+\noindent \textbf{Answer:} Five hours\\
+\item Would you rate it as easy, moderate, or difficult? \\
+\noindent \textbf{Answer:} Moderate\\
+\item How deeply do you feel you understand the material it covers (0\%–100\%)? \\
+\noindent \textbf{Answer:} About 85\% \\
+\item If you have any other comments, we would like to hear them!
+  Please write them here or send email to
+  \mtt{jnfoster@cs.cornell.edu}.
+\end{enumerate*}
+\end{debriefing}
+\end{document}
+
