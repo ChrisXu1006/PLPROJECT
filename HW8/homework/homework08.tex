@@ -243,7 +243,17 @@ Prove progress and preservation. \\
 \noindent \textbf{Proof}\\[0.1cm]
 \noindent \textbf{Preservation.} Assume $\vdash e : \tau$ and $e \rightarrow e'$. We need to show $\vdash e' : \tau$. We will do this by induction on the derivation of $e \rightarrow e'$, and we consider the last rule used in the derivation of $e \rightarrow e'$
 \begin{itemize}
-\item For the evaluation rule to access the field of a location in the records,\\ here $e = \{ l_1 = e_1, \dots, l_n = e_n \}.l_i \ and \ e' = v_i$. Since e is well typed, so we have derivations showing $\Gamma \vdash e: \tau_i$. There is only one typing rule for records' application, so we get $\Gamma \vdash e': \tau_i$. Therefore, we have the preservation hold for this evaluation rule.
+\item For the evaluation rule to access the field of a location in the records,\\ here $e = \{ l_1 = v_1, \dots, l_n = v_n \}.l_i \ and \ e' = v_i$. Since e is well typed, so we have derivations showing $\Gamma \vdash e: \tau_i$. There is 
+only one typing rule for records' application, i.e. 
+\begin{center}
+\infrule[T-Record2]
+{\Gamma \vdash e\ty\{l_1 \ty \tau_1, \dots, l_n \ty \tau_n\}}
+{ \Gamma \vdash e.l_i \ty \tau_i }
+{}
+\end{center}
+so we get $\Gamma \vdash \{ l_1 = v_1, \dots, l_n = v_n \} : 
+\{ l_1 : \tau_1, \dots, l_n : \tau_n \}$. This indicates $\Gamma \vdash e' : \tau_i$. 
+Therefore, we have the preservation hold for this evaluation rule.
 \end{itemize}
 \noindent \textbf{Progress.} We proceed by induction on the derivation of $\vdash e: \tau$
 \begin{itemize}
@@ -258,12 +268,19 @@ From the induction hypothesis, for $i \in \{1 \dots n\},$ either $e_i$ is a valu
 \item For the second type rules of records
 \begin{center}
 \infrule[T-Record2]
-{\Gamma \vdash \{l_1 \ty \tau_1, \dots, l_n \ty \tau_n\}}
+{\Gamma \vdash e\ty\{l_1 \ty \tau_1, \dots, l_n \ty \tau_n\}}
 { \Gamma \vdash e.l_i \ty \tau_i }
 {}
 \end{center}
 Here e is $e_1.l_i$ From the induction hypothesis, $e_1$ is either a value or there is a $e_1'$ such that $e_1 \rightarrow e_1'$. If $e_1$ is not a value, by CONTEXT, we have $e_1.l_i \rightarrow e_1'.l_i$ If $e_1$ is a value, by the evaluation of records to access the field of a location, we have $e_1.l_i \rightarrow v_i$
-\item SUBSUMPTION. Here e is $e \ty \tau'$. From the induction hypothesis, we have that $e \ty \tau$ is either a value or there is a e' such that $e \rightarrow e'$. Therefore, the progress of SUBSUMPTION is proved.
+\item \rulename{Subsumption}. 
+\begin{center}
+\infrule[Subsumption]
+{\Gamma \vdash e\ty\tau\ \ \tau\subty\tau'}
+{ \Gamma \vdash e\ty\tau' }
+{}
+\end{center}
+From the induction hypothesis, we have that $e \ty \tau$ is either a value or there is a e' such that $e \rightarrow e'$. Therefore, the progress of \rulename{Subsumption} is proved.
 \end{itemize}
 \end{exercise}
 
