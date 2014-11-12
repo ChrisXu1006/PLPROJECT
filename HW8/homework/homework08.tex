@@ -222,8 +222,8 @@ $\Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{\cond[\lamfnt]{z}{y}{x}
 \item $\{ l : \top \} \subty \{ l : \typ{bool} \}: \ $ No. Counterexample, ($\lam{x\ty \{l\ty\typ{bool}\}}{\cond[\lamfnt]{x.l}{e_1}{e_2}} \ \ true$). If bool is replaced with $\top$ type, the expression cannot be progressed.
 \item $\{ \} \subty \{ x : \top \}: \ $ No. Counterexample is $\lam{y\ty\{x\ty\top\}}{y.x}$
 \item $(\top \times \{ x \ty \typ{unit} \}) \subty (\{\} \times \top): \ $ Yes.
-\item $(\{ x \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}): \ $ No. Counterexample: $\lam{r\ty \{ x \ty \typ{int}, y \ty \typ{int} \}}{(r.y)}$
-\item $(\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int} \} \arrow \typ{int}): \ $ Yes.
+\item $(\{ x \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}): \ $ Yes.
+\item $(\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int} \} \arrow \typ{int}): \ $ No. CounterExample: $G \triangleq \lam{f\ty \{ x \ty \typ{int} \} \rightarrow \typ{int}}{\lam{y\ty \typ{int}}{f~y}}$, let $ h = \lam{z\ty \{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}}{z.x \ + \ z.y}, v \ is \ \{x=1\}$. However, when evaluating $G~h~v$, it cannot be progressed. 
 \end{itemize}
 \end{exercise}
 
@@ -241,11 +241,11 @@ e    & ::= & x \mid e_1~e_2 \mid \lambda x \ty\tau .~ e \mid \{ l_1 = e_1 , \dot
 Prove progress and preservation. \\
 
 \noindent \textbf{Proof}\\[0.1cm]
-\noindent \textbf{Preservation.}
+\noindent \textbf{Preservation.} Assume $\vdash e : \tau$ and $e \rightarrow e'$. We need to show $\vdash e' : \tau$. We will do this by induction on the derivation of $e \rightarrow e'$, and we consider the last rule used in the derivation of $e \rightarrow e'$
 \begin{itemize}
-\item For the evaluation rule to access the field of a location in the records,\\ here $e = \{ l_1 \ty \tau_1, \dots, l_n \ty \tau_n \}.l_i \ and \ e' = v_i$. Since e is well typed, so we can get $\Gamma \vdash e: \tau_i$ and $\Gamma \vdash v_i: \tau_i$. Therefore, we have the preservation hold for this evaluation rule.
+\item For the evaluation rule to access the field of a location in the records,\\ here $e = \{ l_1 = e_1, \dots, l_n = e_n \}.l_i \ and \ e' = v_i$. Since e is well typed, so we have derivations showing $\Gamma \vdash e: \tau_i$. There is only one typing rule for records' application, so we get $\Gamma \vdash e': \tau_i$. Therefore, we have the preservation hold for this evaluation rule.
 \end{itemize}
-\noindent \textbf{Progress.}
+\noindent \textbf{Progress.} We proceed by induction on the derivation of $\vdash e: \tau$
 \begin{itemize}
 \item For the first type rules of records
 \begin{center}
@@ -254,7 +254,7 @@ Prove progress and preservation. \\
 { \Gamma \vdash \{ l_1 = e_1, \dots, l_n = e_n \} : \{ l_1 \ty \tau_1, \dots, l_n \ty \tau_n \}  }
 {}
 \end{center}
-From the induction hypothesis, for $i \in \{1 \dots n\},$ either $e_i$ is a value or there is an $e_i'$ such that $e_i \rightarrow e_i'$. If $e_i$ is not a value and for all $j \in \{1 \dots n-1\}$ $e_j$ is a value. By CONTEXT, we can get $\{ l_1 = v_1, \dots, l_i = e_i, \dots, l_n = e_n \} \rightarrow \{ l_1 = v_1, \dots, l_i = e_i', \dots, l_n = e_n \}$. If all $e_i$ are values, then e is already a value.
+From the induction hypothesis, for $i \in \{1 \dots n\},$ either $e_i$ is a value or there is an $e_i'$ such that $e_i \rightarrow e_i'$. If $e_i$ is not a value and for all $j \in \{1 \dots i-1\}$ $e_j$ is a value. By CONTEXT, we can get $\{ l_1 = v_1, \dots, l_i = e_i, \dots, l_n = e_n \} \rightarrow \{ l_1 = v_1, \dots, l_i = e_i', \dots, l_n = e_n \}$. If all $e_i$ are values, then e is already a value.
 \item For the second type rules of records
 \begin{center}
 \infrule[T-Record2]
