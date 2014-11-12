@@ -31,6 +31,15 @@ not be accepted.
 Does progress still hold?  Does preservation still hold? If so,
 explain why (briefly). If not, give a counterexample.
 
+\noindent \textbf{Answer:}
+
+Progress does not hold. Counterexample: $(\lam{x\ty\typ{unit}}{x}) + 1$. This expression is well
+typed. However, there is no evaluation rule that can apply to this expression to step. This expression
+is not a value, either. So progress breaks.
+
+Preservation still holds. We proved preservation using induction on the evaluation rules. This typing
+rule does not affect evaluation rules, so we can still prove preservation.
+
 \item Now suppose instead that we add a new evaluation rule to the
 simply-typed $\lambda$-calculus:
 \begin{center}
@@ -41,6 +50,15 @@ simply-typed $\lambda$-calculus:
 \end{center}
 Does progress still hold?  Does preservation still hold? If so,
 explain why (briefly). If not, give a counterexample.
+
+\noindent \textbf{Answer:}
+
+Progress still holds. This evaluation rule enriches the original evaluation rules. Additionaly, applying this rule
+will step to (), which is a value. So combining this rule with original rules, the progress still holds.
+
+Preservation does not hold. Counterexample: $n_1 + n_2 \stepsone ()$. Before the step, the expression had type 
+\typ{int}. After the step, the type changes to \typ{uint}, so preservation breaks.
+
 \end{enumerate}
 \end{exercise}
 
@@ -64,6 +82,47 @@ to avoid any confusion we let ``$\arrow$'' stand for the evaluation
 relation in System F and ``$\Rightarrow$'' stand for the evaluation
 relation for the pure $\lambda$-calculus). Although this property is
 ``obvious,'' proving it rigorously is still good practice!
+
+\noindent \textbf{Answer:}
+
+We prove this property by induction on $e$:
+\begin{itemize}
+	\item \textbf{Case} $e = x$: 
+	
+	this case is impossible, since it's not a value and cannot step.
+	\item \textbf{Case} $e = \lam{x\ty\tau}{e}$: 
+	
+	this is already a value, it cannot step further. Trivilly Proved.
+	\item \textbf{Case} $e = e_1e_2$: 
+	
+	if $e_1$ is not a value, then by \rulename{Context}, we have $e_1e_2 \arrow e_1'e_2$ and 
+	$e_1 \arrow e_1'$. Hence, $e' = e_1'e_2$ Using the induction hypothesis, 
+	we have $erase(e_1) \Rightarrow erase(e_1')$.
+	Therefore, $erase(e) = erase(e_1e_2) = (erase(e_1)erase(e_2)) \Rightarrow (erase(e_1')erase(e_2))
+	= erase(e_1'e_2) = erase(e')$.
+	
+	if $e_1$ is a value and $e_2$ is not a value, then by \rulename{Context}, we have $e_1e_2 \arrow e_1e_2'$ and 
+	$e_2 \arrow e_2'$. Hence, $e' = e_1e_2'$ Using the induction hypothesis, 
+	we have $erase(e_2) \Rightarrow erase(e_2')$.
+	Therefore, $erase(e) = erase(e_1e_2) = (erase(e_1)erase(e_2)) \Rightarrow (erase(e_1)erase(e_2'))
+	= erase(e_1e_2') = erase(e')$.
+	
+	if both $e_1$ and $e_2$ are values, then $e_1 = \lam{x}{e^*}$ and $e_2 = v$. Using \rulename{$\beta$-Reduction},
+	we have $e' = e^*\{v/x\}$. So we have $erase(e) = erase((\lam{x}{e^*})v) = erase(\lam{x}{e^*})erase(v) =
+	(\lam{x}{erase(e^*)})erase(v) \Rightarrow$ 
+	
+	$erase(e^*)\{erase(v)/x\} = erase(e^*\{v/x\}) = erase(e') $
+	\item \textbf{Case} $e = \Lam{X}{e}$:
+
+	this is already a value, it cannot step further. Trivilly Proved.
+	\item \textbf{Case} $e^*[\tau]$:
+
+	$e^*$ must be $\Lam{X}{e_1}$. So $e = \Lam{X}{e_1}[\tau]$, and $e' = e_1\{\tau/X\}$.
+	We have $erase(e) = erase(\Lam{X}{e_1})\lam{z}{z} = (\lam{z}{erase(e_1)})\lam{z}{z} \Rightarrow erase(e_1)$,
+	and $erase(e') = erase(e_1\{\tau/X\}) = erase(e_1)$. The reason for $erase(e_1\{\tau/X\}) = erase(e_1)$ is that
+	no matter whether $\tau$ replaces $X$ in $e_1$ or not, it will be erased anyway. As a result, we can derive
+	$erase(e) \Rightarrow erase(e')$.
+\end{itemize}
 \end{exercise}
 
 \begin{exercise}
@@ -110,13 +169,35 @@ need to consider non-termination as a possible behavior.)
 
 \noindent \textbf{Answer:}
 \begin{enumerate}
-\item $\forall A.~ A \rightarrow A: \Lam{A}{\lam{x\ty A}}{x}$
-\item $\forall A.~ A \rightarrow A \rightarrow A: \Lam{A}{\lam{x\ty A}{\lam{y\ty A}{x}}}, \ \ \Lam{A}{\lam{x\ty A}{\lam{y\ty B}{y}}}$
-\item $\forall A.~ \forall B.~ A\rightarrow (A \rightarrow B) \rightarrow B: \Lam{A}{\Lam{B}{\lam{x\ty A}{\lam{f\ty (A \rightarrow B)}{f~x}}}}$
-\item $\forall A.~\forall B.~ A \rightarrow B \rightarrow A + B: \Lam{A}{\Lam{B}{\lam{x\ty A}{\lam{y\ty B}{\inleft{A}{B}{x}}}}}, \ \ \Lam{A}{\Lam{B}{\lam{x\ty A}{\lam{y\ty B}{\inright{A}{B}{y}}}}}$
+\item $\forall A.~ A \rightarrow A:$ 
+
+$\Lam{A}{\lam{x\ty A}}{x}$
+\item $\forall A.~ A \rightarrow A \rightarrow A:$ 
+
+$\Lam{A}{\lam{x\ty A}{\lam{y\ty A}{x}}}$ 
+
+$\Lam{A}{\lam{x\ty A}{\lam{y\ty B}{y}}}$
+\item $\forall A.~ \forall B.~ A\rightarrow (A \rightarrow B) \rightarrow B:$ 
+
+$\Lam{A}{\Lam{B}{\lam{x\ty A}{\lam{f\ty (A \rightarrow B)}{f~x}}}}$
+\item $\forall A.~\forall B.~ A \rightarrow B \rightarrow A + B: $
+
+$\Lam{A}{\Lam{B}{\lam{x\ty A}{\lam{y\ty B}{\inleft{A}{B}{x}}}}},$ 
+
+$\Lam{A}{\Lam{B}{\lam{x\ty A}{\lam{y\ty B}{\inright{A}{B}{y}}}}}$
 \item $\forall A.~A:$ This type is the void type, therefore, there is no behaviorally distinct expressions of that type
-\item $\forall A.~ A \rightarrow \typ{bool} \rightarrow A: \Lam{A}{\lam{x\ty A}{\lam{b\ty\typ{bool}}{x}}}$
-\item $\forall A.~ A \rightarrow A \rightarrow \typ{bool} \rightarrow A: \Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{x}}}}, \ \ \Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{y}}}}, \ \ \Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{\cond[\lamfnt]{z}{x}{y}}}}}, \ \ \Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{\cond[\lamfnt]{z}{y}{x}}}}},$
+\item $\forall A.~ A \rightarrow \typ{bool} \rightarrow A: $
+
+$\Lam{A}{\lam{x\ty A}{\lam{b\ty\typ{bool}}{x}}}$
+\item $\forall A.~ A \rightarrow A \rightarrow \typ{bool} \rightarrow A: $
+
+$\Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{x}}}},$
+
+$\Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{y}}}},$
+
+$\Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{\cond[\lamfnt]{z}{x}{y}}}}},$
+
+$\Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{\cond[\lamfnt]{z}{y}{x}}}}},$
 \end{enumerate}
 \end{exercise}
 
@@ -136,8 +217,8 @@ need to consider non-termination as a possible behavior.)
 \noindent \textbf{Answer:}
 \begin{itemize}
 \item $\typ{int} \subty \typ{unit}:$ Yes.
-\item $\{ l : \top \} \subty \{ l : \typ{bool} \}: \ $ No. Counterexample, ($\lam{x\ty \typ{bool}}{\cond[\lamfnt]{x}{e_1}{e_2}} \ \ true$). If bool is replaced with $\top$ type, the expression cannot be progressed.
-\item $\{ \} \subty \{ x : \top \}: \ $ No. Counterexample is $\{ x : \top \}.x$
+\item $\{ l : \top \} \subty \{ l : \typ{bool} \}: \ $ No. Counterexample, ($\lam{x\ty \{l\ty\typ{bool}\}}{\cond[\lamfnt]{x.l}{e_1}{e_2}} \ \ true$). If bool is replaced with $\top$ type, the expression cannot be progressed.
+\item $\{ \} \subty \{ x : \top \}: \ $ No. Counterexample is $\lam{y\ty\{x\ty\top\}}{y.x}$
 \item $(\top \times \{ x \ty \typ{unit} \}) \subty (\{\} \times \top): \ $ Yes.
 \item $(\{ x \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}): \ $ No. Counterexample: $\lam{r\ty \{ x \ty \typ{int}, y \ty \typ{int} \}}{(r.y)}$
 \item $(\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int} \} \arrow \typ{int}): \ $ Yes.
