@@ -118,8 +118,10 @@ We prove this property by induction on $e$:
 	\item \textbf{Case} $e^*[\tau]$:
 
 	$e^*$ must be $\Lam{X}{e_1}$. So $e = \Lam{X}{e_1}[\tau]$, and $e' = e_1\{\tau/X\}$.
-	We have $erase(e) = erase(\Lam{X}{e_1})\lam{z}{z} = (\lam{z}{erase(e_1)})\lam{z}{z} \Rightarrow erase(e_1)$,
-	and $erase(e') = erase(e_1\{\tau/X\}) = erase(e_1)$. The reason for $erase(e_1\{\tau/X\}) = erase(e_1)$ is that
+	We have $erase(e) = erase(\Lam{X}{e_1})\lam{z}{z} = (\lam{z}{erase(e_1)})\lam{z}{z} \Rightarrow erase(e_1)$ in
+	which $z$ is a fresh variable of $e_1$. 
+	We also have $erase(e') = erase(e_1\{\tau/X\}) = erase(e_1)$. 
+	The reason for $erase(e_1\{\tau/X\}) = erase(e_1)$ is that
 	no matter whether $\tau$ replaces $X$ in $e_1$ or not, it will be erased anyway. As a result, we can derive
 	$erase(e) \Rightarrow erase(e')$.
 \end{itemize}
