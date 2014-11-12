@@ -107,6 +107,17 @@ need to consider non-termination as a possible behavior.)
 \bigskip\bigskip
 \end{minipage}
 \end{enumerate}
+
+\noindent \textbf{Answer:}
+\begin{enumerate}
+\item $\forall A.~ A \rightarrow A: \Lam{A}{\lam{x\ty A}}{x}$
+\item $\forall A.~ A \rightarrow A \rightarrow A: \Lam{A}{\lam{x\ty A}{\lam{y\ty A}{x}}}, \ \ \Lam{A}{\lam{x\ty A}{\lam{y\ty B}{y}}}$
+\item $\forall A.~ \forall B.~ A\rightarrow (A \rightarrow B) \rightarrow B: \Lam{A}{\Lam{B}{\lam{x\ty A}{\lam{f\ty (A \rightarrow B)}{f~x}}}}$
+\item $\forall A.~\forall B.~ A \rightarrow B \rightarrow A + B: \Lam{A}{\Lam{B}{\lam{x\ty A}{\lam{y\ty B}{\inleft{A}{B}{x}}}}}, \ \ \Lam{A}{\Lam{B}{\lam{x\ty A}{\lam{y\ty B}{\inright{A}{B}{y}}}}}$
+\item $\forall A.~A:$ This type is the void type, therefore, there is no behaviorally distinct expressions of that type
+\item $\forall A.~ A \rightarrow \typ{bool} \rightarrow A: \Lam{A}{\lam{x\ty A}{\lam{b\ty\typ{bool}}{x}}}$
+\item $\forall A.~ A \rightarrow A \rightarrow \typ{bool} \rightarrow A: \Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{x}}}}, \ \ \Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{y}}}}, \ \ \Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{\cond[\lamfnt]{z}{x}{y}}}}}, \ \ \Lam{A}{\lam{x\ty A}{\lam{y\ty A}{\lam{z\ty \typ{bool}}{\cond[\lamfnt]{z}{y}{x}}}}},$
+\end{enumerate}
 \end{exercise}
 
 \begin{exercise}
@@ -122,6 +133,15 @@ need to consider non-termination as a possible behavior.)
 \item $(\{ x \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int})$
 \item $(\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int} \} \arrow \typ{int})$
 \end{itemize}
+\noindent \textbf{Answer:}
+\begin{itemize}
+\item $\typ{int} \subty \typ{unit}:$ Yes.
+\item $\{ l : \top \} \subty \{ l : \typ{bool} \}: \ $ No. Counterexample, ($\lam{x\ty \typ{bool}}{\cond[\lamfnt]{x}{e_1}{e_2}} \ \ true$). If bool is replaced with $\top$ type, the expression cannot be progressed.
+\item $\{ \} \subty \{ x : \top \}: \ $ No. Counterexample is $\{ x : \top \}.x$
+\item $(\top \times \{ x \ty \typ{unit} \}) \subty (\{\} \times \top): \ $ Yes.
+\item $(\{ x \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}): \ $ No. Counterexample: $\lam{r\ty \{ x \ty \typ{int}, y \ty \typ{int} \}}{(r.y)}$
+\item $(\{ x \ty \typ{int}, y \ty \typ{int} \} \arrow \typ{int}) \subty (\{ x \ty \typ{int} \} \arrow \typ{int}): \ $ Yes.
+\end{itemize}
 \end{exercise}
 
 \begin{exercise}
@@ -135,15 +155,49 @@ e    & ::= & x \mid e_1~e_2 \mid \lambda x \ty\tau .~ e \mid \{ l_1 = e_1 , \dot
 \end{array}
 \]
 %
-Prove progress and preservation. 
+Prove progress and preservation. \\
+
+\noindent \textbf{Proof}\\[0.1cm]
+\noindent \textbf{Preservation.}
+\begin{itemize}
+\item For the evaluation rule to access the field of a location in the records,\\ here $e = \{ l_1 \ty \tau_1, \dots, l_n \ty \tau_n \}.l_i \ and \ e' = v_i$. Since e is well typed, so we can get $\Gamma \vdash e: \tau_i$ and $\Gamma \vdash v_i: \tau_i$. Therefore, we have the preservation hold for this evaluation rule.
+\end{itemize}
+\noindent \textbf{Progress.}
+\begin{itemize}
+\item For the first type rules of records
+\begin{center}
+\infrule[T-Record1]
+{\forall. i \in 1 \dots n, \ \ \Gamma \vdash e_i : \tau_i}
+{ \Gamma \vdash \{ l_1 = e_1, \dots, l_n = e_n \} : \{ l_1 \ty \tau_1, \dots, l_n \ty \tau_n \}  }
+{}
+\end{center}
+From the induction hypothesis, for $i \in \{1 \dots n\},$ either $e_i$ is a value or there is an $e_i'$ such that $e_i \rightarrow e_i'$. If $e_i$ is not a value and for all $j \in \{1 \dots n-1\}$ $e_j$ is a value. By CONTEXT, we can get $\{ l_1 = v_1, \dots, l_i = e_i, \dots, l_n = e_n \} \rightarrow \{ l_1 = v_1, \dots, l_i = e_i', \dots, l_n = e_n \}$. If all $e_i$ are values, then e is already a value.
+\item For the second type rules of records
+\begin{center}
+\infrule[T-Record2]
+{\Gamma \vdash \{l_1 \ty \tau_1, \dots, l_n \ty \tau_n\}}
+{ \Gamma \vdash e.l_i \ty \tau_i }
+{}
+\end{center}
+Here e is $e_1.l_i$ From the induction hypothesis, $e_1$ is either a value or there is a $e_1'$ such that $e_1 \rightarrow e_1'$. If $e_1$ is not a value, by CONTEXT, we have $e_1.l_i \rightarrow e_1'.l_i$ If $e_1$ is a value, by the evaluation of records to access the field of a location, we have $e_1.l_i \rightarrow v_i$
+\item SUBSUMPTION. Here e is $e \ty \tau'$. From the induction hypothesis, we have that $e \ty \tau$ is either a value or there is a e' such that $e \rightarrow e'$. Therefore, the progress of SUBSUMPTION is proved.
+\end{itemize}
 \end{exercise}
 
 \begin{debriefing} \hfill\\[-4ex]
 \begin{enumerate*}
-\item How many hours did you spend on this assignment? 
-\item Would you rate it as easy, moderate, or difficult? 
-\item Did everyone in your study group participate? 
-\item How deeply do you feel you understand the material it covers (0\%--100\%)? 
+\item How many hours did you spend on this assignment?\\[0.2cm]
+\noindent \textbf{Answer:} 4 hours\\
+
+\item Would you rate it as easy, moderate, or difficult?\\[0.2cm]
+\noindent \textbf{Answer:} Moderate\\
+
+\item Did everyone in your study group participate?\\[0.2cm]
+\noindent \textbf{Answer:} Yes\\
+
+\item How deeply do you feel you understand the material it covers (0\%--100\%)?\\[0.2cm]
+\noindent \textbf{Answer:} About 85\% \\
+
 \item If you have any other comments, we would like to hear them!
   Please send email to \texttt{jnfoster@cs.cornell.edu}.
 \end{enumerate*}
