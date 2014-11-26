@@ -1,0 +1,191 @@
+\newif\ifbeamer\beamerfalse
+\documentclass[10pt]{article}
+
+\usepackage{../tex/jnf}
+\usepackage{alltt}
+
+\renewcommand{\labelenumi}{\textbf{(\alph{enumi})}}
+
+\begin{document}
+
+\bigredheader{Homework \#9}
+
+\paragraph{ChangeLog}
+\begin{itemize}
+\item Version 1 (Wednesday, November 19): Initial release.
+\item Version 2 (Saturday, November 22): Fixed typo in description of languages in Exercise 2: $\lamfnt{void}$ changed to $()$ and $\lamfnt{null}$ removed.
+\end{itemize}
+
+
+\paragraph{Due} Tuesday, November 25, 2014 by 11:59pm 
+
+\paragraph{Instructions} 
+This assignment may be completed with one partner.  You and your
+partner should submit a single solution on CMS. Please do not offer or
+accept any other assistance on this assignment. Late submissions will
+not be accepted.
+
+\begin{exercise}
+Naive implementations of recursive functions often redundantly compute
+the same results many times. For example, to evaluate
+$\mathit{fib}~5$, the value $\mathit{fib}~2$ is computed $3$ times!
+
+One idea for making recursive functions more efficient is to cache and
+reuse previously-computed results. This technique is known as
+\emph{memoization}. To memoize $\mathit{fib}$ we can build a function
+that takes an argument $n$ and checks if $\mathit{fib}~n$ is in the
+cache. If so, it returns the result immediately. Otherwise it computes
+the result, stores it in the cache, and returns it. As an example,
+here is a memoized version of Fibonacci in OCaml that uses an
+hashtable for the cache:
+%
+\begin{alltt}
+    let cache : (int,int) Hashtbl.t = Hashtbl.create 43
+    let rec fib n =
+      try Hashtbl.find cache n with Not_found -> 
+        let r = 
+          if n = 0 then 1
+          else if n = 1 then 1 
+          else fib (n-1) + fib (n-2) in
+        Hashtbl.add cache n r; 
+        r  
+\end{alltt}
+
+\noindent In this exercise you will build a memoized version of your
+implementation of $\mathit{fib}$ using references. Because we do not
+have hashtables, you will have to implement the cache using
+references: the first time a result is computed, you should overwrite
+the reference at the top-level with one containing a new function that
+returns that result if invoked on the same argument in the future and
+otherwise computes $\mathit{fib}~n$.
+ 
+We have provided some code to help you get started. Note that there
+are two levels of references---one to encode recursion and one to help
+you encode the cache.
+
+\bigskip
+
+\(
+\begin{array}{l}
+\lamfnt{let}~\mathit{fib}~\ty \typ{int} \arrow \typ{int} = \\
+\quad \lamfnt{let}~f~\ty~((\typ{int} \arrow \typ{int})~\typ{ref})~\typ{ref} = \lamfnt{ref}~(\lamfnt{ref}~(\lam{n\ty\typ{int}}{42}))~\lamfnt{in}\\
+\quad f := \lamfnt{ref}~(\lambda n\ty\typ{int}.\\
+\hspace*{25mm} \lamfnt{let}~r \ty \typ{int} = \\
+\hspace*{25mm} \quad \lamfnt{if}~n = 0~\lamfnt{then}~1\\ 
+\hspace*{25mm} \quad \lamfnt{else}~\lamfnt{if}~n = 1~\lamfnt{then}~1\\ 
+\hspace*{25mm} \quad \lamfnt{else}~!(!f)~(n-1)~+~!(!f)~(n-2)~\lamfnt{in}\\[.5em]
+\hspace*{25mm} \quad \textit{\fbox{(* Fill in missing code here *)}}\\[.5em]
+\quad );\\
+\quad !(!f)
+\end{array}
+\)
+\end{exercise}
+
+\begin{exercise} 
+
+In this exercise, we will show that sum types $\tau + \sigma$
+can be encoded using product and universal types in System F. The
+propositions-as-type principle will help in constructing the
+appropriate translations. In particular, we will use one of De
+Morgan's laws: $\phi \vee \psi \equiv \neg (\neg \phi \wedge \neg \psi)$.
+
+As the source language, we will use the simply-typed
+$\lambda$-calculus extended with sums and unit:
+%
+\[
+\begin{array}{r@{~~}c@{~~}l}
+e    &::=& () \mid x \mid e_1\,e_2 \mid \lam{x:\tau}{e} \mid
+           \lamfnt{inl}_{\tau_1+\tau_2} e \mid \lamfnt{inr}_{\tau_1+\tau_2} e \mid \lamfnt{case}~e_0~\lamfnt{of}e_1~\mid~{e_2}\\[1ex]
+\tau &::=& \lamfnt{unit} \mid \tau_1 \arrow \tau_2 \mid \tau_1 + \tau_2\\
+\end{array}
+\]
+%
+As the target language, we will use System F extended with products
+and unit (but not sums!):
+%
+\[
+\begin{array}{r@{~~}c@{~~}l}
+e    &::=& () \mid x \mid e_1\,e_2 \mid \lam{x:\tau}{e} \mid
+           (e_1, e_2) \mid \lamfnt{\#1}\,e \mid \lamfnt{\#2}\,e \mid 
+           \Lambda \alpha.~e \mid e~[\tau] \\
+\tau &::=& \lamfnt{unit} \mid \tau_1 \arrow \tau_2 \mid \tau_1 \times \tau_2 \mid \alpha \mid \forall \alpha . \tau\\
+\end{array}
+\]
+
+\begin{enumerate}
+\item Give a formula that is equivalent to $\phi \vee \psi$, but which
+  only contains logical operators for which there are corresponding
+  types in the fragment of System F above.  (Hint: use a universal
+  type to encode ``negation''.)
+
+\item Define a translation $\Tr{T}{\cdot}$ on types that takes a type
+  in the fragment of simply-typed $\lambda$-calculus listed above and
+  produces a type in the fragment of System F extended with products. 
+
+\item Define the corresponding translation $\Tr{E}{\cdot}$ on
+  expressions in the fragment of simply-typed $\lambda$ calculus
+  listed above. You only need to give the cases for
+  $\lamfnt{inl}_{\tau_1+\tau_2}$, $\lamfnt{inr}_{\tau_1+\tau_2}$, and
+  $\lamfnt{case}~{e_0}~\lamfnt{of}~{e_1}~\mid~{e_2}$. 
+
+  You may find it helpful to think about types.  In particular, your
+  translations should be type preserving in the sense that they should
+  map well-typed terms to well-typed terms. However, you do not need
+  to prove this property.
+
+\end{enumerate}
+\end{exercise}
+
+\begin{exercise}
+Suppose we extend Featherweight Java with support for simple
+exceptions:
+\[
+\begin{array}{rrl@{\qquad}l}
+e        &   ::=& x \mid e.f \mid e.m(\ol{e}) \kw{new}~C(\ol{e}) \mid (C)~e \mid \shade{\kw{throw}~e} \mid \shade{\kw{try}~\{$e$\}~\kw{catch}~($C$~$x$)~\{~$e$~\}}
+\end{array}
+\]
+%
+The typing rules for these new expressions are as follows:
+%
+\begin{center}
+\infrule[T-Throw]
+{ \Gamma \vdash e : C \qquad C \subty \kw{Exception} }
+{ \Gamma \vdash \kw{throw}~e : D }
+{ }
+\hfil
+\infrule[T-Try]
+{ \Gamma \vdash e_1 : D \qquad \Gamma,x : C \vdash e_2 : D }
+{ \Gamma \vdash \kw{try}~e_1~\kw{catch}(C~x)~\{ e_2 \} : D }
+{ }
+\end{center}
+%
+\begin{enumerate}
+\item Extend the definition of evaluation contexts $E$ and the
+small-step operational semantics to propagate exceptions, using
+expressions of the form \kw{throw}~\kw{new}~C(\ol{v}) to represent
+exceptions that have been thrown. You only need to give the new
+evaluation contexts and rules.
+
+\item Extend the operational semantics so that down casts step throw a
+\texttt{ClassCastException} instead of getting stuck. (You may assume
+that the program $P$ already contains suitable definitions of classes
+\texttt{Exception} and \texttt{ClassCastException}.)
+
+\item State the progress theorem. (\textbf{Karma:} prove it!)
+
+\end{enumerate}
+\end{exercise}
+
+\begin{debriefing} \hfill\\[-4ex]
+\begin{enumerate*}
+\item How many hours did you spend on this assignment? 
+\item Would you rate it as easy, moderate, or difficult? 
+\item Did everyone in your study group participate? 
+\item How deeply do you feel you understand the material it covers (0\%--100\%)? 
+\item If you have any other comments, we would like to hear them!
+  Please send email to \texttt{jnfoster@cs.cornell.edu}.
+\end{enumerate*}
+\end{debriefing}
+
+\end{document}
+
