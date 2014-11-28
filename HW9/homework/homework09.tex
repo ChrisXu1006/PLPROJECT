@@ -10,6 +10,7 @@
 
 \bigredheader{Homework \#9}
 
+\paragraph{By Rui Xu(rx37), Yao Wang(yw438)}
 \paragraph{ChangeLog}
 \begin{itemize}
 \item Version 1 (Wednesday, November 19): Initial release.
@@ -74,7 +75,10 @@ you encode the cache.
 \hspace*{25mm} \quad \lamfnt{if}~n = 0~\lamfnt{then}~1\\ 
 \hspace*{25mm} \quad \lamfnt{else}~\lamfnt{if}~n = 1~\lamfnt{then}~1\\ 
 \hspace*{25mm} \quad \lamfnt{else}~!(!f)~(n-1)~+~!(!f)~(n-2)~\lamfnt{in}\\[.5em]
-\hspace*{25mm} \quad \textit{\fbox{(* Fill in missing code here *)}}\\[.5em]
+\hspace*{25mm} \quad \textit{\fbox{
+(* Fill in missing code here, I am not sure the correctness of the results *)
+}}\\[.5em]
+\hspace*{25mm} \quad \lamfnt{if} ((!f + n) \ doesn't \ exist) \ \lamfnt{then} \ !((!f + n) \ := r) \ \lamfnt{else} \ !(!f + n)\\
 \quad );\\
 \quad !(!f)
 \end{array}
@@ -120,7 +124,12 @@ e    &::=& () \mid x \mid e_1\,e_2 \mid \lam{x:\tau}{e} \mid
 
 \item Define a translation $\Tr{T}{\cdot}$ on types that takes a type
   in the fragment of simply-typed $\lambda$-calculus listed above and
-  produces a type in the fragment of System F extended with products. 
+  produces a type in the fragment of System F extended with products.\\[0.1cm]
+\noindent \textbf{Answer:}
+\begin{center}
+	$\Tr{T}{\lamfnt{unit}} = \lamfnt{unit}$\\
+	$\Tr{T}{\tau_1 \arrow \tau_2} = \Tr{T}{\tau_1} \arrow \Tr{T}{\tau_2}$ 
+\end{center}
 
 \item Define the corresponding translation $\Tr{E}{\cdot}$ on
   expressions in the fragment of simply-typed $\lambda$ calculus
@@ -164,14 +173,51 @@ The typing rules for these new expressions are as follows:
 small-step operational semantics to propagate exceptions, using
 expressions of the form \kw{throw}~\kw{new}~C(\ol{v}) to represent
 exceptions that have been thrown. You only need to give the new
-evaluation contexts and rules.
+evaluation contexts and rules.\\[0.3cm]
+\noindent \textbf{Answer}: \\
+\[
+\begin{array}{rrl@{\qquad}l}
+E        &   ::=&  \kw{throw}~E \mid \kw{try}~\{$E$\}~\kw{catch}~($C$~$x$)~\{~$e$~\} \mid \kw{try}~\{$v$\}~\kw{catch}~($C$~$x$)~\{~$E$~\}
+\end{array}
+\]
+
+\begin{center}
+\infrule[E-Throw]
+{ }
+{\kw{throw} \ \kw{new}~C(\ol{v}) \rightarrow \kw{Exception}}
+{ }
+\hfill
+\infrule[E-Try1]
+{ e \rightarrow v}
+{ \kw{try}~\{${e}$\}~\kw{catch}~($C$~$x$)~\{~$e$~\} \rightarrow v}
+{ }
+\hfill
+\infrule[E-Try2]
+{ e_1 \rightarrow \kw{throw} \ \kw{new}~C(x)}
+{ \kw{try}~\{e_1\}~\kw{catch}~($C$~$x$)~\{~e_2~\} \rightarrow e_2 }
+{ } 
+\hfill
+\infrule[E-Try2]
+{ e_1 \rightarrow \kw{throw} \ \kw{new}~C'(x')}
+{ \kw{try}~\{e_1\}~\kw{catch}~($C$~$x$)~\{~e_2~\} \rightarrow Exception }
+{ } 
+\end{center}
 
 \item Extend the operational semantics so that down casts step throw a
 \texttt{ClassCastException} instead of getting stuck. (You may assume
 that the program $P$ already contains suitable definitions of classes
-\texttt{Exception} and \texttt{ClassCastException}.)
+\texttt{Exception} and \texttt{ClassCastException}.)\\
+\noindent \textbf{Answer:} \\
+\begin{center}
+\infrule[E-DCAST]
+{ D \leq C}
+{ (D) \kw{new}~C(\ol{v}) \rightarrow \kw{ClassCaseException}}
+{ }
+\end{center}
 
-\item State the progress theorem. (\textbf{Karma:} prove it!)
+\item State the progress theorem. (\textbf{Karma:} prove it!)\\[0.3cm]
+\noindent \textbf{Answer:} Let $e$ be an expression such that $\vdash e: C.$ The either e is a value, there exists an expression $e'$ such that $e \rightarrow e'$ , $e = E[(B) \ (\kw{new}~A(\ol{v}))] \ with \ A \nleq B$, or e is \kw{Exception} or \kw{ClassCastException}.
+
 
 \end{enumerate}
 \end{exercise}
