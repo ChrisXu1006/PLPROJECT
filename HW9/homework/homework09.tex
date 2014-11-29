@@ -75,10 +75,7 @@ you encode the cache.
 \hspace*{25mm} \quad \lamfnt{if}~n = 0~\lamfnt{then}~1\\ 
 \hspace*{25mm} \quad \lamfnt{else}~\lamfnt{if}~n = 1~\lamfnt{then}~1\\ 
 \hspace*{25mm} \quad \lamfnt{else}~!(!f)~(n-1)~+~!(!f)~(n-2)~\lamfnt{in}\\[.5em]
-\hspace*{25mm} \quad \textit{\fbox{
-(* Fill in missing code here, I am not sure the correctness of the results *)
-}}\\[.5em]
-\hspace*{25mm} \quad \lamfnt{if} ((!f + n) \ doesn't \ exist) \ \lamfnt{then} \ !((!f + n) \ := r) \ \lamfnt{else} \ !(!f + n)\\
+\hspace*{25mm} \quad \lamfnt{if} (!(f + n) = NULL) \ \lamfnt{then} \ !(f + n)\ := \lam{n\ty\typ{int}}{r} \ \lamfnt{else} \ !(!(f + n))\\
 \quad );\\
 \quad !(!f)
 \end{array}
@@ -120,7 +117,13 @@ e    &::=& () \mid x \mid e_1\,e_2 \mid \lam{x:\tau}{e} \mid
 \item Give a formula that is equivalent to $\phi \vee \psi$, but which
   only contains logical operators for which there are corresponding
   types in the fragment of System F above.  (Hint: use a universal
-  type to encode ``negation''.)
+  type to encode ``negation''.) \\[0.1cm]
+\noindent \textbf{Answer:}
+\begin{center}
+	$T = \Lambda \alpha.\lam{x:\alpha}{\lam{y:\alpha}{x}}$ \\
+	$F = \Lambda \alpha.\lam{x:\alpha}{\lam{y:\alpha}{y}}$ \\
+	$\phi \vee \psi \equiv \lam{x:Boolean}{\lam{y:Boolean}{x\ Boolean\ T\ y}}$
+\end{center}
 
 \item Define a translation $\Tr{T}{\cdot}$ on types that takes a type
   in the fragment of simply-typed $\lambda$-calculus listed above and
@@ -128,7 +131,8 @@ e    &::=& () \mid x \mid e_1\,e_2 \mid \lam{x:\tau}{e} \mid
 \noindent \textbf{Answer:}
 \begin{center}
 	$\Tr{T}{\lamfnt{unit}} = \lamfnt{unit}$\\
-	$\Tr{T}{\tau_1 \arrow \tau_2} = \Tr{T}{\tau_1} \arrow \Tr{T}{\tau_2}$ 
+	$\Tr{T}{\tau_1 \arrow \tau_2} = \Tr{T}{\tau_1} \arrow \Tr{T}{\tau_2}$ \\
+	$\Tr{T}{\tau_1 + \tau_2} = \Tr{T}{\tau_1} \times \Tr{T}{\tau_2}$
 \end{center}
 
 \item Define the corresponding translation $\Tr{E}{\cdot}$ on
@@ -140,7 +144,14 @@ e    &::=& () \mid x \mid e_1\,e_2 \mid \lam{x:\tau}{e} \mid
   You may find it helpful to think about types.  In particular, your
   translations should be type preserving in the sense that they should
   map well-typed terms to well-typed terms. However, you do not need
-  to prove this property.
+  to prove this property. \\[0.1cm]
+\noindent \textbf{Answer:}
+\begin{center}
+	$\Tr{E}{\lamfnt{inl}_{\tau_1+\tau_2}{e}} = (e, e^*)\ where\ \Gamma \vdash e^* \ty \tau_2$ \\
+	$\Tr{E}{\lamfnt{inr}_{\tau_1+\tau_2}{e}} = (e^*, e)\ where\ \Gamma \vdash e^* \ty \tau_1$ \\
+	$\Tr{E}{\lamfnt{case}~{\lamfnt{inl}_{\tau_1+\tau_2}{e}}~\lamfnt{of}~{e_1}~\mid~{e_2}} = e_1(\#1\ \Tr{E}{\lamfnt{inl}_{\tau_1+\tau_2}{e}})$ \\
+	$\Tr{E}{\lamfnt{case}~{\lamfnt{inr}_{\tau_1+\tau_2}{e}}~\lamfnt{of}~{e_1}~\mid~{e_2}} = e_2(\#2\ \Tr{E}{\lamfnt{inr}_{\tau_1+\tau_2}{e}})$
+\end{center}
 
 \end{enumerate}
 \end{exercise}
@@ -225,9 +236,17 @@ that the program $P$ already contains suitable definitions of classes
 \begin{debriefing} \hfill\\[-4ex]
 \begin{enumerate*}
 \item How many hours did you spend on this assignment? 
+
+Four hours.
 \item Would you rate it as easy, moderate, or difficult? 
+
+Difficult.
 \item Did everyone in your study group participate? 
+
+Yes.
 \item How deeply do you feel you understand the material it covers (0\%--100\%)? 
+
+80\%
 \item If you have any other comments, we would like to hear them!
   Please send email to \texttt{jnfoster@cs.cornell.edu}.
 \end{enumerate*}
